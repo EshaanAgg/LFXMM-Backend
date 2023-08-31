@@ -1,7 +1,7 @@
 package main
 
-import "eshaanagg/lfx/scrapers"
+import projectid "eshaanagg/lfx/scrapers/projectId"
 
 func main() {
-	scrapers.GetProjectIds()
+	projectid.GenerateProjectIds()
 }

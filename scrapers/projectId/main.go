@@ -4,8 +4,8 @@ import (
 	"fmt"
 )
 
-func GetProjectIds() []string {
-	limit := 50
+func GenerateProjectIds() {
+	limit := 100
 	start := 0
 	allIds := make([]string, 0)
 
@@ -24,8 +24,13 @@ func GetProjectIds() []string {
 		if countIds < limit {
 			break
 		}
-		start += 25
+		start += limit
 	}
 
-	return allIds
+	err := saveInCSV(allIds)
+	if err != nil {
+		fmt.Println("[ERROR] GenerateProjectIDs failed. Please try again.")
+	} else {
+		fmt.Println("[SUCCESS] All project ids have been saved successfully.")
+	}
 }
