@@ -12,7 +12,6 @@ import (
 const apiURL = "https://api.mentorship.lfx.linuxfoundation.org/projects/cache/paginate?from=%d&size=%d&sortby=updatedStamp"
 
 func makeRequest(start int, limit int) ([]string, error) {
-
 	// Make the API request
 	res, err := http.Get(fmt.Sprintf(apiURL, start, limit))
 

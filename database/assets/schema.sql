@@ -1,7 +1,36 @@
 DROP TABLE IF EXISTS parentOrgs;
+DROP TABLE IF EXISTS organizations;
+DROP TABLE IF EXISTS projects;
 
 CREATE TABLE parentOrgs (
   id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-  name VARCHAR (255) UNIQUE NOT NULL,
+  name VARCHAR (256) UNIQUE NOT NULL,
   logo VARCHAR (1024)
+);
+
+CREATE TABLE organizations (
+  id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY, 
+  name VARCHAR (512) UNIQUE NOT NULL, 
+  logo VARCHAR (1024),
+  parentOrgId INTEGER NOT NULL, 
+  CONSTRAINT fk_parentOrgId
+    FOREIGN KEY (parentOrgId) 
+	  REFERENCES parentOrgs(id)
+    ON DELETE CASCADE
+);
+
+CREATE TABLE projects (
+  id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY, 
+  lFXProjectId VARCHAR (128) UNIQUE NOT NULL, 
+  name VARCHAR (512) UNIQUE NOT NULL, 
+  industry VARCHAR (512)[], 
+  description VARCHAR (4096) DEFAULT '',
+  skills VARCHAR (128)[], 
+  programYear INTEGER NOT NULL, 
+  programTerm VARCHAR (128) NOT NULL,
+  organizationId INTEGER NOT NULL, 
+  CONSTRAINT fk_organizationId
+    FOREIGN KEY (organizationId) 
+	  REFERENCES organizations(id)
+    ON DELETE CASCADE
 );
