@@ -8,8 +8,11 @@ import (
 	_ "github.com/lib/pq"
 )
 
-func New() *sql.DB {
+type Client struct {
+	*sql.DB
+}
 
+func New() Client {
 	connStr := os.Getenv("POSTGRE_CONN_URL")
 	db, err := sql.Open("postgres", connStr)
 
@@ -23,5 +26,5 @@ func New() *sql.DB {
 		panic(err)
 	}
 
-	return db
+	return Client{db}
 }

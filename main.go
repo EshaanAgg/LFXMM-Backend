@@ -1,7 +1,8 @@
 package main
 
 import (
-	projectid "eshaanagg/lfx/scrapers/projectId"
+	"eshaanagg/lfx/database/handlers"
+	projectIdScrapper "eshaanagg/lfx/scrapers/projectId"
 
 	"github.com/joho/godotenv"
 )
@@ -9,5 +10,12 @@ import (
 func main() {
 	// Populate the environment variables
 	godotenv.Load(".env")
-	projectid.GenerateProjectIds()
+
+	client := handlers.New()
+	client.GetAllParentOrgs()
+}
+
+func Scrape() {
+	// Generate all the project ids in a .csv file
+	projectIdScrapper.GenerateProjectIds()
 }
