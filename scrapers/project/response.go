@@ -8,12 +8,9 @@ type projectResponse struct {
 	ApprenticeNeeds struct {
 		Skills []string `json:"skills"`
 	} `json:"apprenticeNeeds"`
-	Repository   string `json:"repoLink"`
-	Website      string `json:"websiteUrl"`
-	LogoURL      string `json:"logoUrl"`
-	CreatedOn    string `json:"createdOn"`
-	ProgramTerms []struct {
-		Name string `json:"name"`
-	} `json:"programTerms"`
-	AmountRaised float32 `json:"amountRaised"`
+	Repository   string  `json:"repoLink"`
+	Website      string  `json:"websiteUrl"`
+	LogoURL      string  `json:"logoUrl"`
+	CreatedOn    string  `json:"createdOn"`
+	AmountRaised float64 `json:"amountRaised"`
 }

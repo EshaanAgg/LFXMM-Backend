@@ -6,28 +6,43 @@ import (
 	"fmt"
 )
 
-func (client Client) GetAllParentOrgs() {
+func (client Client) GetAllParentOrgs() []database.ParentOrg {
 	rowsRs, err := client.Query("SELECT * FROM parentOrgs;")
 
 	if err != nil {
 		fmt.Println("[ERROR] GetAllParentOrgs query failed")
 		fmt.Println(err)
-		return
+		return make([]database.ParentOrg, 0)
 	}
 	defer rowsRs.Close()
 
 	orgs, err := parseResultSetToSlice(rowsRs)
 	if err != nil {
+		fmt.Println("[ERROR] Can't convert to result set in GetAllParentOrgs function.")
 		fmt.Println(err)
+		return make([]database.ParentOrg, 0)
 	}
 
-	fmt.Println(orgs)
+	return orgs
 }
 
-func (client Client) CreateParentOrg(org *database.ParentOrg) {
+func (client Client) GetAllOrgNames() []string {
+	orgs := client.GetAllParentOrgs()
+	names := make([]string, 0)
+
+	for _, org := range orgs {
+		names = append(names, org.Name)
+	}
+
+	return names
+}
+
+func (client Client) CreateParentOrg(name string, logo string) *database.ParentOrg {
+	org := database.ParentOrg{ID: "0", Name: name, Logo: logo}
+
 	insertStmt :=
 		`
-        INSERT INTO parentOrgs (name, avatar) 
+        INSERT INTO parentOrgs (name, logo) 
         VALUES($1, $2) 
         RETURNING id;
         `
@@ -37,10 +52,13 @@ func (client Client) CreateParentOrg(org *database.ParentOrg) {
 	if err != nil {
 		fmt.Println("[ERROR] Can't add new parent organization")
 		fmt.Println(err)
+		return nil
 	}
+
+	return &org
 }
 
-func (client Client) ParentOrgExists(name string) bool {
+func (client Client) GetOrganizationByName(name string) *database.ParentOrg {
 	queryStmt :=
 		`
         SELECT * FROM parentOrgs 
@@ -49,19 +67,23 @@ func (client Client) ParentOrgExists(name string) bool {
 	rowsRs, err := client.Query(queryStmt, name)
 
 	if err != nil {
-		fmt.Println("[ERROR] ParentOrgExists query failed")
+		fmt.Println("[ERROR] GetOrganizationByName query failed")
 		fmt.Println(err)
-		return true
+		return nil
 	}
 	defer rowsRs.Close()
 
 	orgs, err := parseResultSetToSlice(rowsRs)
 	if err != nil {
 		fmt.Println(err)
-		return true
+		return nil
 	}
 
-	return len(orgs) == 1
+	if len(orgs) == 0 {
+		return nil
+	}
+
+	return &orgs[0]
 }
 
 // Helper function to convert the resultset of a SELECT * query to slice of ParentOrg struct

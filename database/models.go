@@ -5,14 +5,6 @@ type ParentOrg struct {
 	Name string
 	Logo string
 }
-
-type Organization struct {
-	ID          string
-	Name        string
-	Logo        string
-	ParentOrgID string
-}
-
 type Project struct {
 	ID             string
 	LFXProjectID   string
@@ -20,7 +12,10 @@ type Project struct {
 	Industry       []string
 	Description    string
 	Skills         []string
+	Repository     string
 	ProgramYear    int
 	ProgramTerm    string
+	AmountRaised   float64
 	OrganizationID string
+	Website        string
 }
