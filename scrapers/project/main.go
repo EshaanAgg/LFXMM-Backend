@@ -21,5 +21,6 @@ func Parse() {
 		} else {
 			addToDatabase(project)
 		}
+		fmt.Println()
 	}
 }

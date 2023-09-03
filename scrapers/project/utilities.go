@@ -1,6 +1,7 @@
 package project
 
 import (
+	"bufio"
 	"encoding/csv"
 	"encoding/json"
 	"errors"
@@ -10,6 +11,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -106,7 +108,13 @@ func addToDatabase(projRes *projectResponse) {
 
 	project.OrganizationID = getOrganizationID(projRes)
 
-	fmt.Println(project)
+	client := handlers.New()
+	proj := client.CreateProject(project)
+	if proj == nil {
+		fmt.Println("[ERROR] Can't save this project to database.")
+	} else {
+		fmt.Println("[SUCCESS] Project added.")
+	}
 }
 
 func getOrganizationID(proj *projectResponse) string {
@@ -121,10 +129,26 @@ func getOrganizationID(proj *projectResponse) string {
 		client := handlers.New()
 		allOrgs := client.GetAllOrgNames()
 
-		fmt.Println("No organization can be found for this project. The present organizations are:")
-		fmt.Println(allOrgs)
-		fmt.Println("Enter the name for the organization: ")
-		fmt.Scan(&orgName)
+		fmt.Printf("Project Name: %s. \n", name)
+		fmt.Println("No organization can be found for this project. The most probable organizations for the same can be: ")
+
+		probableOrgs := getMostProbableOrgs(allOrgs, name)
+		for i, org := range probableOrgs {
+			fmt.Printf("%d: %s\n", i+1, org)
+		}
+
+		// Read the user's input for the organization name.
+		fmt.Println("Enter the name/index for the organization: ")
+		scanner := bufio.NewScanner(os.Stdin)
+		scanner.Scan()
+		sentence := trim(scanner.Text())
+
+		index, err := strconv.Atoi(sentence)
+		if err != nil || index >= len(probableOrgs) {
+			orgName = sentence
+		} else {
+			orgName = sentence
+		}
 	}
 
 	return getOrganization(orgName, proj)
@@ -138,6 +162,7 @@ func getOrganization(orgName string, proj *projectResponse) string {
 		return org.ID
 	}
 
+	fmt.Printf("[INFO] Creating a new organization: %s \n", orgName)
 	newOrg := client.CreateParentOrg(orgName, proj.LogoURL)
 
 	if newOrg == nil {

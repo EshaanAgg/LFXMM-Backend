@@ -50,7 +50,7 @@ func (client Client) CreateParentOrg(name string, logo string) *database.ParentO
 	err := client.QueryRow(insertStmt, org.Name, org.Logo).Scan(&org.ID)
 
 	if err != nil {
-		fmt.Println("[ERROR] Can't add new parent organization")
+		fmt.Println("[ERROR] Can't add new parent organization.")
 		fmt.Println(err)
 		return nil
 	}
@@ -94,7 +94,7 @@ func parseResultSetToSlice(rowsRs *sql.Rows) ([]database.ParentOrg, error) {
 	// we loop through the values of rows
 	for rowsRs.Next() {
 		org := database.ParentOrg{}
-		err := rowsRs.Scan(&org.ID, &org.Name, &org.Name)
+		err := rowsRs.Scan(&org.ID, &org.Name, &org.Logo)
 		if err != nil {
 			fmt.Println("[ERROR] Can't save to ParentOrg struct")
 			return nil, err
