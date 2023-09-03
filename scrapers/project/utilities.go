@@ -96,19 +96,14 @@ func addToDatabase(projRes *projectResponse) {
 	}
 
 	// Map program term and year
-	year, term := getProjectTerm(*projRes)
-	if term != nil {
-		project.ProgramYear = *year
-		project.ProgramTerm = *term
-	} else {
-		fmt.Printf("[ERROR] Project Term and Year could not be parsed for project %s. It will be populated by standard zero values.\n", projRes.ProjectID)
-		project.ProgramYear = 0
-		project.ProgramTerm = "Uncategorized"
-	}
+	project.ProgramYear, project.ProgramTerm = getProjectTerm(*projRes)
 
 	project.OrganizationID = getOrganizationID(projRes)
 
+	// Save the project to database
 	client := handlers.New()
+	defer client.Close()
+
 	proj := client.CreateProject(project)
 	if proj == nil {
 		fmt.Println("[ERROR] Can't save this project to database.")
@@ -127,7 +122,13 @@ func getOrganizationID(proj *projectResponse) string {
 		orgName = trim(strings.Split(name, "-")[0])
 	} else {
 		client := handlers.New()
+		defer client.Close()
+
 		allOrgs := client.GetAllOrgNames()
+
+		if possibleName := findInExistingOrgs(allOrgs, name); possibleName != "" {
+			return getOrganization(possibleName, proj)
+		}
 
 		fmt.Printf("Project Name: %s. \n", name)
 		fmt.Println("No organization can be found for this project. The most probable organizations for the same can be: ")
@@ -147,7 +148,7 @@ func getOrganizationID(proj *projectResponse) string {
 		if err != nil || index >= len(probableOrgs) {
 			orgName = sentence
 		} else {
-			orgName = sentence
+			orgName = probableOrgs[index-1]
 		}
 	}
 
@@ -156,6 +157,8 @@ func getOrganizationID(proj *projectResponse) string {
 
 func getOrganization(orgName string, proj *projectResponse) string {
 	client := handlers.New()
+	defer client.Close()
+
 	org := client.GetOrganizationByName(orgName)
 
 	if org != nil {

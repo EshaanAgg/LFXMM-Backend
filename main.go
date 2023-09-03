@@ -1,7 +1,7 @@
 package main
 
 import (
-	"eshaanagg/lfx/scrapers/project"
+
 	// projectIdScrapper "eshaanagg/lfx/scrapers/projectId"
 
 	"github.com/joho/godotenv"
@@ -18,5 +18,5 @@ func main() {
 func Scrape() {
 	// Generate all the project ids in a .csv file
 	// projectIdScrapper.GenerateProjectIds()
-	project.Parse()
+	// project.Parse()
 }

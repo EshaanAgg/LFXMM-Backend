@@ -15,7 +15,7 @@ As an alterantive, if you have got the database locally, then you can use Postgr
 You can use the following command from the root to execute the SQL file against the database:
 
 ```bash
-echo database/assets/schema.sql | psql -h localhost -U admin -d lfx
+cat database/assets/schema.sql | psql -h localhost -U admin -d lfx
 ```
 
 Remember to replace the values of `-h` flag with the host, `-U` with the user and `-d` with the database name. You can even pipe the result directly to `psql <YOUR_POSTGRES_CONNECTION_STRING>`.
