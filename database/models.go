@@ -1,9 +1,9 @@
 package database
 
 type ParentOrg struct {
-	ID   string
-	Name string
-	Logo string
+	ID   string `json:"id"`
+	Name string `json:"name"`
+	Logo string `json:"logoUrl"`
 }
 type Project struct {
 	ID             string

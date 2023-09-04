@@ -86,6 +86,34 @@ func (client Client) GetOrganizationByName(name string) *database.ParentOrg {
 	return &orgs[0]
 }
 
+func (client Client) GetOrganizationByID(id string) *database.ParentOrg {
+	queryStmt :=
+		`
+        SELECT * FROM parentOrgs 
+        WHERE id = $1;
+        `
+
+	rowsRs, err := client.Query(queryStmt, id)
+	if err != nil {
+		fmt.Println("[ERROR] GetOrganizationByID query failed")
+		fmt.Println(err)
+		return nil
+	}
+	defer rowsRs.Close()
+
+	orgs, err := parseResultSetToSlice(rowsRs)
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
+
+	if len(orgs) == 0 {
+		return nil
+	}
+
+	return &orgs[0]
+}
+
 // Helper function to convert the resultset of a SELECT * query to slice of ParentOrg struct
 func parseResultSetToSlice(rowsRs *sql.Rows) ([]database.ParentOrg, error) {
 	// Creates placeholder
