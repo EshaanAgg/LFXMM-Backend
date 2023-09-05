@@ -11,8 +11,12 @@ services:
       - "8080:8080"
     links:
       - db
+    volumes:
+      - .:/usr/src/app
 
   db:
     build:
       context: .
       dockerfile: db.Dockerfile
+    ports:
+      - "8079:5432"
