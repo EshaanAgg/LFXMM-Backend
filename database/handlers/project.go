@@ -30,7 +30,7 @@ func (client Client) CreateProject(proj database.Project) *database.Project {
 func (client Client) GetProjectsByParentOrgID(id string) []database.ProjectThumbail {
 	queryStmt :=
 		`
-        SELECT id, lfxProjectId, name, description, programYear, programYear 
+        SELECT id, lfxProjectId, name, description, programYear, programTerm 
 		FROM projects WHERE organizationId = $1
         `
 
@@ -47,7 +47,7 @@ func (client Client) GetProjectsByParentOrgID(id string) []database.ProjectThumb
 		proj := database.ProjectThumbail{}
 		lfxId := ""
 
-		err := rowsRs.Scan(&proj.ID, &lfxId, &proj.Name, &proj.Description, &proj.ProgramYear, &proj.ProgramYear)
+		err := rowsRs.Scan(&proj.ID, &lfxId, &proj.Name, &proj.Description, &proj.ProgramYear, &proj.ProgramTerm)
 		if err != nil {
 			fmt.Println("[ERROR] Can't save to Project struct")
 			return projects

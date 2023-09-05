@@ -1,0 +1,18 @@
+version: "3.8"
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: api.Dockerfile
+    environment:
+      POSTGRE_CONN_URL: postgres://admin:admin@db:5432/lfx?sslmode=disable
+    ports:
+      - "8080:8080"
+    links:
+      - db
+
+  db:
+    build:
+      context: .
+      dockerfile: db.Dockerfile

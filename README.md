@@ -9,3 +9,6 @@ The `LFX Mentorship` data is hughly unstructed. There is no way to use the prese
 ## Architecture
 
 The `scrapers` package is meant to contain all the scripts that can be run on a periodic basis to collect all the data related to the LFX mentorship projects in a SQL database. The `api` package contains all the source code for the controllers and endpoints exposed, which are used by the frontend to render the `LFX Mentorship Metrics` project.
+
+docker build -t db . -f sql.Dockerfile
+psql -U admin -h localhost -d lfx -p 3000
