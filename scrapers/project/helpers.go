@@ -11,7 +11,7 @@ import (
 )
 
 const dateTimeFormatString = "2006-01-02 15:04:05 +0000"
-const maxOptions = float64(5)
+const maxOptions = 5
 
 func getTermFromMonth(month time.Month) string {
 	term := "Term 1"
@@ -96,7 +96,7 @@ func getMostProbableOrgs(allOrgs []string, project string) []string {
 	})
 
 	orgs := make([]string, 0)
-	for i := 0; float64(i) < math.Min(maxOptions, float64(len(keyValuePairs))); i++ {
+	for i := 0; i < min(maxOptions, len(keyValuePairs)); i++ {
 		orgs = append(orgs, keyValuePairs[i].Key)
 	}
 	return orgs

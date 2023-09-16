@@ -4,7 +4,7 @@
 
 ## Need
 
-The `LFX Mentorship` data is hughly unstructed. There is no way to use the present [`mentorship.lfx site`](https://mentorship.lfx.linuxfoundation.org/) to vie the data of organizations and projects across years, and evaluate trends so that new contributors can figure out which organizations and projects would be the most relevant to them.
+The `LFX Mentorship` data is highly unstructed. There is no way to use the present [`mentorship.lfx site`](https://mentorship.lfx.linuxfoundation.org/) to view the data of organizations and projects across years, and evaluate trends so that new contributors can figure out which organizations and projects would be the most relevant to them.
 
 ## Architecture
 
