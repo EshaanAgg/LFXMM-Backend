@@ -9,7 +9,7 @@ import (
 func Start() {
 	router := gin.Default()
 
-	router.GET("/api/projects", func(c *gin.Context) {
+	router.GET("/api", func(c *gin.Context) {
 		c.IndentedJSON(http.StatusOK, gin.H{
 			"message": "The API is running and healthy.",
 		})
