@@ -12,7 +12,13 @@ type Client struct {
 	*sql.DB
 }
 
-func New() Client {
+
+/* The following function creates a new client object instance on which methods
+ * are called to read data from the database.
+ *
+ * Returns: client (database) object
+ */
+ func New() Client {
 	connStr := os.Getenv("POSTGRE_CONN_URL")
 	db, err := sql.Open("postgres", connStr)
 
