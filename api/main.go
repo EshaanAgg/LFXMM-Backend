@@ -18,6 +18,7 @@ func Start() {
 	// Register all the routes and there corresponding handlers
 	router.GET("/api/projects", getAllOrgs)
 	router.GET("/api/projects/:id", getOrg)
+	router.GET("/api/org/:orgID/projects", getAllProjectsByOrg)
 
 	router.Run("0.0.0.0:8080")
 }
