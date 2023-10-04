@@ -3,6 +3,7 @@ package handlers
 import (
 	"eshaanagg/lfx/database"
 	"fmt"
+	"strings"
 
 	"github.com/lib/pq"
 )
@@ -57,4 +58,67 @@ func (client Client) GetProjectsByParentOrgID(id string) []database.ProjectThumb
 	}
 
 	return projects
+}
+
+func (client Client) GetProjectByProjectId(projectID string) ([]database.ProjectDetails, error) {
+	queryStmt := `
+    SELECT id, lfxProjectId, name, description, industry, website, amountRaised, skills, organizationId, repository
+    FROM projects
+    WHERE id = $1
+    `
+
+	rows, err := client.Query(queryStmt, projectID)
+	if err != nil {
+		fmt.Println("[ERROR] GetProjectByProjectId query failed.")
+		fmt.Println(err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	projects := []database.ProjectDetails{} 
+
+	for rows.Next() {
+		project := database.ProjectDetails{} // Create a single ProjectDetails struct to hold each row
+		lfxId := ""
+		var skillsStr string 
+
+		err := rows.Scan(
+			&project.ProjectID,
+			&lfxId,
+			&project.Name,
+			&project.Description,
+			&project.Industry,
+			&project.Website,
+			&project.AmountRaised,
+			&skillsStr, 
+			&project.OrganizationID,
+			&project.Repository,
+		)
+		project.LFXProjectUrl = "https://mentorship.lfx.linuxfoundation.org/project/" + lfxId
+		if err != nil {
+			fmt.Println("[ERROR] GetProjectByProjectId scan failed.")
+			fmt.Println(err)
+			return nil, err
+		}
+
+		// Clean up and split the skills data
+		cleanedSkills := strings.Split(strings.Trim(skillsStr, "{} "), ",")
+
+		// Set the cleaned skills data in the project struct
+		project.Skills = cleanedSkills
+
+		projects = append(projects, project)
+	}
+
+	if err := rows.Err(); err != nil {
+		fmt.Println("[ERROR] GetProjectByProjectId rows error.")
+		fmt.Println(err)
+		return nil, err
+	}
+
+	if len(projects) == 0 {
+		return nil, fmt.Errorf("Project not found")
+	}
+
+	return projects, nil
 }
