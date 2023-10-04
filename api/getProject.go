@@ -4,6 +4,7 @@ import (
 	"eshaanagg/lfx/database/handlers"
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -53,3 +54,33 @@ func getProject(c *gin.Context) {
 	})
 
 }
+
+func getProjectByYear(c *gin.Context) {
+	client := handlers.New()
+	defer client.Close()
+
+	id := c.Param("id")
+	org := client.GetOrganizationByID(id)
+
+	if org == nil {
+		c.IndentedJSON(http.StatusNotFound, gin.H{
+			"message": "There is no organization with this id",
+		},
+		)
+		return
+	}
+
+	yearParam := c.Query("year")
+	Year, err := strconv.Atoi(yearParam)
+    if err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid year parameter"})
+        return
+    }
+
+	projects := client.GetProjectsByYear(id,Year)
+
+	c.IndentedJSON(http.StatusOK, gin.H{
+		"projects":     projects,
+	})
+}
+

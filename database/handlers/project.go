@@ -75,12 +75,12 @@ func (client Client) GetProjectByProjectId(projectID string) ([]database.Project
 	}
 	defer rows.Close()
 
-	projects := []database.ProjectDetails{} 
+	projects := []database.ProjectDetails{}
 
 	for rows.Next() {
 		project := database.ProjectDetails{} // Create a single ProjectDetails struct to hold each row
 		lfxId := ""
-		var skillsStr string 
+		var skillsStr string
 
 		err := rows.Scan(
 			&project.ProjectID,
@@ -90,7 +90,7 @@ func (client Client) GetProjectByProjectId(projectID string) ([]database.Project
 			&project.Industry,
 			&project.Website,
 			&project.AmountRaised,
-			&skillsStr, 
+			&skillsStr,
 			&project.OrganizationID,
 			&project.Repository,
 		)
@@ -121,4 +121,35 @@ func (client Client) GetProjectByProjectId(projectID string) ([]database.Project
 	}
 
 	return projects, nil
+}
+
+func (client Client) GetProjectsByYear(id string, year int) []database.ProjectThumbail {
+
+	queryStmt :=
+		`SELECT id, lfxProjectId, name, description, programYear, programTerm 
+     FROM projects 
+     WHERE organizationId = $1 AND programYear = $2`
+
+	projects := make([]database.ProjectThumbail, 0)
+
+	rowsRs, err := client.Query(queryStmt, id, year)
+	if err != nil {
+		fmt.Println("[ERROR] GetProjectsByYear query failed.")
+		fmt.Println(err)
+		return projects
+	}
+
+	for rowsRs.Next() {
+		proj := database.ProjectThumbail{}
+		lfxId := ""
+
+		err := rowsRs.Scan(&proj.ID, &lfxId, &proj.Name, &proj.Description, &proj.ProgramYear, &proj.ProgramTerm)
+		if err != nil {
+			fmt.Println("[ERROR] Can't save to Project struct")
+			return projects
+		}
+		proj.ProjectURL = "https://mentorship.lfx.linuxfoundation.org/project/" + lfxId
+		projects = append(projects, proj)
+	}
+	return projects
 }
