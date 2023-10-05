@@ -196,7 +196,7 @@ func (client Client) GetProjectsByOrganization(id string) []database.ProjectThum
  func (client Client) GetCountOfProjectsByParentOrgID(id string) []database.ProjectCountByYear {
 	queryStmt :=
 		`
-        SELECT programYear, COUNT(*) as count
+        SELECT programYear, COUNT(id) as count
 		FROM projects WHERE organizationId = $1
 		GROUP BY programYear
 		ORDER BY programYear;
