@@ -9,13 +9,12 @@ import (
 )
 
 func (client Client) CreateProject(proj database.Project) *database.Project {
-	insertStmt :=
-		`
+	insertStmt := `
         INSERT INTO projects 
         (lfxProjectId, name, industry, description, skills, programYear, programTerm,  website, repository, amountRaised, organizationId) 
         VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) 
         RETURNING id;
-        `
+    `
 
 	err := client.QueryRow(insertStmt, proj.LFXProjectID, proj.Name, pq.Array(proj.Industry), proj.Description, pq.Array(proj.Skills), proj.ProgramYear, proj.ProgramTerm, proj.Website, proj.Repository, proj.AmountRaised, proj.OrganizationID).Scan(&proj.ID)
 
@@ -29,11 +28,10 @@ func (client Client) CreateProject(proj database.Project) *database.Project {
 }
 
 func (client Client) GetProjectsByParentOrgID(id string) []database.ProjectThumbail {
-	queryStmt :=
-		`
+	queryStmt := `
         SELECT id, lfxProjectId, name, description, programYear, programTerm 
 		FROM projects WHERE organizationId = $1
-        `
+    `
 
 	projects := make([]database.ProjectThumbail, 0)
 
@@ -61,12 +59,11 @@ func (client Client) GetProjectsByParentOrgID(id string) []database.ProjectThumb
 }
 
 func (client Client) GetProjectById(projectID string) ([]database.ProjectDetails, error) {
-	queryStmt :=
-		`
+	queryStmt := `
     	SELECT id, lfxProjectId, name, description, industry, website, amountRaised, skills, organizationId, repository
     	FROM projects
     	WHERE id = $1
-    	`
+    `
 
 	rows, err := client.Query(queryStmt, projectID)
 	if err != nil {
@@ -126,12 +123,11 @@ func (client Client) GetProjectById(projectID string) ([]database.ProjectDetails
 
 func (client Client) GetProjectsByYear(id string, year int) []database.ProjectThumbail {
 
-	queryStmt :=
-		`
+	queryStmt := `
 		SELECT id, lfxProjectId, name, description, programYear, programTerm 
     	FROM projects 
     	WHERE organizationId = $1 AND programYear = $2
-		`
+	`
 
 	projects := make([]database.ProjectThumbail, 0)
 

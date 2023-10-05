@@ -77,13 +77,13 @@ func getProjectsByYear(c *gin.Context) {
 		return
 	}
 
-	Year, err := strconv.Atoi(yearParam)
+	year, err := strconv.Atoi(yearParam)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid year parameter"})
 		return
 	}
 
-	projects := client.GetProjectsByYear(id, Year)
+	projects := client.GetProjectsByYear(id, year)
 
 	c.IndentedJSON(http.StatusOK, gin.H{
 		"projects": projects,
