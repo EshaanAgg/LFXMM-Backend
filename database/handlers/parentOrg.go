@@ -28,7 +28,7 @@ func (client Client) GetAllParentOrgs() []database.ParentOrg {
 	/* Create slice from sql.Rows.
 	 * This function is defined in this file.
 	 */
-	 orgs, err := parseResultSetToSlice(rowsRs)
+	orgs, err := parseResultSetToSlice(rowsRs)
 	if err != nil {
 		fmt.Println("[ERROR] Can't convert to result set in GetAllParentOrgs function.")
 		fmt.Println(err)
@@ -74,11 +74,11 @@ func (client Client) CreateParentOrg(name string, logo string) *database.ParentO
         RETURNING id;
         `
 
-	/* Insert the object/data into the database.
-	 * Note: Scan is used only for the purposes of getting errors
-	 *       as QueryRow doesn't return an error.
-	 */
-	 err := client.QueryRow(insertStmt, org.Name, org.Logo).Scan(&org.ID)
+		/* Insert the object/data into the database.
+		 * Note: Scan is used only for the purposes of getting errors
+		 *       as QueryRow doesn't return an error.
+		 */
+	err := client.QueryRow(insertStmt, org.Name, org.Logo).Scan(&org.ID)
 
 	if err != nil {
 		fmt.Println("[ERROR] Can't add a new parent organization.")
@@ -162,8 +162,7 @@ func (client Client) GetOrganizationByID(id string) *database.ParentOrg {
 	return &orgs[0]
 }
 
-
- // Helper function to convert the resultset of a SELECT * query to a slice of ParentOrg struct. 
+// Helper function to convert the resultset of a SELECT * query to a slice of ParentOrg struct.
 func parseResultSetToSlice(rowsRs *sql.Rows) ([]database.ParentOrg, error) {
 	// Create a placeholder.
 	orgs := make([]database.ParentOrg, 0)
