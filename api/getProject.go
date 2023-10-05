@@ -93,3 +93,30 @@ func getProjectsByYear(c *gin.Context) {
 		"projects": projects,
 	})
 }
+
+
+/*
+ * The following function sends an API response with the number of projects by year
+ * for a given organization (id)
+ */
+ func getProjectCount(c *gin.Context) {
+	client := handlers.New()
+	defer client.Close()
+
+	// Get id from HTTP request
+	id := c.Param("id")
+
+	// Check if an org exists with given id
+	org := client.GetOrganizationByID(id)
+
+	if org == nil {
+		c.IndentedJSON(http.StatusNotFound, gin.H{
+			"message": "There is no organization with this id",
+		},
+		)
+		return
+	}
+
+	// Send out HTTP response. The function used below is defined under database/handlers
+	c.IndentedJSON(http.StatusOK, client.GetCountOfProjectsByParentOrgID(id))
+}
