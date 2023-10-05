@@ -61,11 +61,12 @@ func (client Client) GetProjectsByParentOrgID(id string) []database.ProjectThumb
 }
 
 func (client Client) GetProjectById(projectID string) ([]database.ProjectDetails, error) {
-	queryStmt := `
-    SELECT id, lfxProjectId, name, description, industry, website, amountRaised, skills, organizationId, repository
-    FROM projects
-    WHERE id = $1
-    `
+	queryStmt :=
+		`
+    	SELECT id, lfxProjectId, name, description, industry, website, amountRaised, skills, organizationId, repository
+    	FROM projects
+    	WHERE id = $1
+    	`
 
 	rows, err := client.Query(queryStmt, projectID)
 	if err != nil {
@@ -126,9 +127,11 @@ func (client Client) GetProjectById(projectID string) ([]database.ProjectDetails
 func (client Client) GetProjectsByYear(id string, year int) []database.ProjectThumbail {
 
 	queryStmt :=
-		`SELECT id, lfxProjectId, name, description, programYear, programTerm 
-     FROM projects 
-     WHERE organizationId = $1 AND programYear = $2`
+		`
+		SELECT id, lfxProjectId, name, description, programYear, programTerm 
+    	FROM projects 
+    	WHERE organizationId = $1 AND programYear = $2
+		`
 
 	projects := make([]database.ProjectThumbail, 0)
 
