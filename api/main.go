@@ -19,7 +19,7 @@ func Start() {
 	router.GET("/api/orgs", getAllOrgs)
 	router.GET("/api/orgs/:id", getOrg)
 	router.GET("/api/orgs/:id/projects/:projectId", getProject)
-	router.GET("/api/orgs/:id/projects", getProjectByYear)
+	router.GET("/api/orgs/:id/projects", getProjectsByYear)
 
 	router.Run("0.0.0.0:8080")
 }

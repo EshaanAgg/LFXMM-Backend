@@ -8,9 +8,9 @@ import (
 )
 
 func getAllOrgs(c *gin.Context) {
-	
+
 	/*
-	 * The following function creates a client instance for the database. 
+	 * The following function creates a client instance for the database.
 	 * GetAllParentOrgs function is called on this object instance.
 	 *
 	 * Defined at: ../database/handlers/client.go
@@ -20,7 +20,7 @@ func getAllOrgs(c *gin.Context) {
 	defer client.Close()
 
 	/*
-	 * The following function returns the fetched data. 
+	 * The following function returns the fetched data.
 	 * GetAllParentOrgs is defined at ../database/handlers/parentOrg.go
 	 */
 	c.IndentedJSON(http.StatusOK, client.GetAllParentOrgs())

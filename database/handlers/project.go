@@ -60,7 +60,7 @@ func (client Client) GetProjectsByParentOrgID(id string) []database.ProjectThumb
 	return projects
 }
 
-func (client Client) GetProjectByProjectId(projectID string) ([]database.ProjectDetails, error) {
+func (client Client) GetProjectById(projectID string) ([]database.ProjectDetails, error) {
 	queryStmt := `
     SELECT id, lfxProjectId, name, description, industry, website, amountRaised, skills, organizationId, repository
     FROM projects

@@ -12,7 +12,7 @@ type ProjectThumbail struct {
 type ProjectDetails struct {
 	ProjectID      string   `json:"projectId"`
 	OrganizationID string   `json:"orgId"`
-	LFXProjectUrl   string   `json:"lfxProjectUrl"`
+	LFXProjectUrl  string   `json:"lfxProjectUrl"`
 	Name           string   `json:"name"`
 	Industry       string   `json:"industry"`
 	Description    string   `json:"description"`
