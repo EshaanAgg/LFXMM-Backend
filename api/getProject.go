@@ -82,7 +82,7 @@ func getProjectsByYear(c *gin.Context) {
 	year, err := strconv.Atoi(yearParam)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Invalid year parameter. It should be of Integer type.",
+			"message": "Invalid year parameter. It should be of Integer type.",
 		})
 		return
 	}
@@ -94,12 +94,11 @@ func getProjectsByYear(c *gin.Context) {
 	})
 }
 
-
 /*
  * The following function sends an API response with the number of projects by year
  * for a given organization (id)
  */
- func getProjectCount(c *gin.Context) {
+func getProjectCount(c *gin.Context) {
 	client := handlers.New()
 	defer client.Close()
 
@@ -111,7 +110,7 @@ func getProjectsByYear(c *gin.Context) {
 
 	if org == nil {
 		c.IndentedJSON(http.StatusNotFound, gin.H{
-			"message": "There is no organization with this id",
+			"message": "There is no organization with this ID.",
 		},
 		)
 		return
