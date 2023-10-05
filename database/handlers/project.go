@@ -59,7 +59,8 @@ func (client Client) GetProjectsByParentOrgID(id string) []database.ProjectThumb
 }
 
 func (client Client) GetProjectById(projectID string) ([]database.ProjectDetails, error) {
-	queryStmt := `
+	queryStmt :=
+		`
     	SELECT id, lfxProjectId, name, description, industry, website, amountRaised, skills, organizationId, repository
     	FROM projects
     	WHERE id = $1
@@ -101,8 +102,6 @@ func (client Client) GetProjectById(projectID string) ([]database.ProjectDetails
 
 		// Clean up and split the skills data
 		cleanedSkills := strings.Split(strings.Trim(skillsStr, "{} "), ",")
-
-		// Set the cleaned skills data in the project struct
 		project.Skills = cleanedSkills
 
 		projects = append(projects, project)
@@ -115,7 +114,7 @@ func (client Client) GetProjectById(projectID string) ([]database.ProjectDetails
 	}
 
 	if len(projects) == 0 {
-		return nil, fmt.Errorf("Project not found")
+		return nil, fmt.Errorf("project not found with the provided id")
 	}
 
 	return projects, nil
@@ -123,17 +122,51 @@ func (client Client) GetProjectById(projectID string) ([]database.ProjectDetails
 
 func (client Client) GetProjectsByYear(id string, year int) []database.ProjectThumbail {
 
-	queryStmt := `
+	queryStmt :=
+		`
 		SELECT id, lfxProjectId, name, description, programYear, programTerm 
     	FROM projects 
     	WHERE organizationId = $1 AND programYear = $2
-	`
+		`
 
 	projects := make([]database.ProjectThumbail, 0)
 
 	rowsRs, err := client.Query(queryStmt, id, year)
 	if err != nil {
 		fmt.Println("[ERROR] GetProjectsByYear query failed.")
+		fmt.Println(err)
+		return projects
+	}
+
+	for rowsRs.Next() {
+		proj := database.ProjectThumbail{}
+		lfxId := ""
+
+		err := rowsRs.Scan(&proj.ID, &lfxId, &proj.Name, &proj.Description, &proj.ProgramYear, &proj.ProgramTerm)
+		if err != nil {
+			fmt.Println("[ERROR] Can't save to Project struct")
+			return projects
+		}
+		proj.ProjectURL = "https://mentorship.lfx.linuxfoundation.org/project/" + lfxId
+		projects = append(projects, proj)
+	}
+	return projects
+}
+
+func (client Client) GetProjectsByOrganization(id string) []database.ProjectThumbail {
+
+	queryStmt :=
+		`
+		SELECT id, lfxProjectId, name, description, programYear, programTerm 
+    	FROM projects 
+    	WHERE organizationId = $1
+		`
+
+	projects := make([]database.ProjectThumbail, 0)
+
+	rowsRs, err := client.Query(queryStmt, id)
+	if err != nil {
+		fmt.Println("[ERROR] GetProjectsByOrganization query failed.")
 		fmt.Println(err)
 		return projects
 	}

@@ -18,7 +18,7 @@ func getProject(c *gin.Context) {
 	org := client.GetOrganizationByID(orgID)
 	if org == nil {
 		c.IndentedJSON(http.StatusNotFound, gin.H{
-			"message": "There is no organization with this id",
+			"message": "There is no organization with this ID.",
 		})
 		return
 	}
@@ -27,7 +27,7 @@ func getProject(c *gin.Context) {
 	projects, err := client.GetProjectById(projectID)
 	if err != nil {
 		c.IndentedJSON(http.StatusNotFound, gin.H{
-			"message": "Project not found",
+			"message": "No project was found with the provided ID.",
 		})
 		return
 	}
@@ -35,7 +35,7 @@ func getProject(c *gin.Context) {
 	// Check if the organization ID associated with the project matches the supplied orgId
 	if projects[0].OrganizationID != orgID {
 		c.IndentedJSON(http.StatusForbidden, gin.H{
-			"message": "This project does not belong to the specified organization",
+			"message": "This project does not belong to the specified organization.",
 		})
 		return
 	}
@@ -64,7 +64,7 @@ func getProjectsByYear(c *gin.Context) {
 
 	if org == nil {
 		c.IndentedJSON(http.StatusNotFound, gin.H{
-			"message": "There is no organization with this id",
+			"message": "There is no organization with this ID.",
 		})
 		return
 	}
@@ -73,13 +73,17 @@ func getProjectsByYear(c *gin.Context) {
 
 	// Check if yearParam is empty or not provided.
 	if yearParam == "" {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Year parameter is required"})
+		c.IndentedJSON(http.StatusOK, gin.H{
+			"projects": client.GetProjectsByOrganization(id),
+		})
 		return
 	}
 
 	year, err := strconv.Atoi(yearParam)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid year parameter"})
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid year parameter. It should be of Integer type.",
+		})
 		return
 	}
 

@@ -16,7 +16,7 @@ func getOrg(c *gin.Context) {
 
 	if org == nil {
 		c.IndentedJSON(http.StatusNotFound, gin.H{
-			"message": "There is no organization with this id",
+			"message": "There is no organization with this ID.",
 		},
 		)
 		return
