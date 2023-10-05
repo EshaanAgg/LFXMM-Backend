@@ -43,6 +43,10 @@ If you make any changes to the database, then you can use the `pg_dump` utility 
 pg_dump -U admin -h localhost -p 8079 lfx  > ./sql/backup.sql
 ```
 
+#### Debug Help
+
+If you have changed the `backup.sql` file and the new data is not being reflected in your database, then it you might need to delete all the Docker's cache and build volumes by running the command `docker system prune -a`, and then re-running the container with `docker compose up`.
+
 ### Individual Docker Images
 
 You can play around with by builing the images for the API and database separately if you want more fine grained control. Be sure to provide the relevant inputs and environment configurations for the images as done by the [`docker compose file`](./docker-compose.yml).

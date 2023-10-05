@@ -41,17 +41,7 @@ func getProject(c *gin.Context) {
 	}
 
 	c.IndentedJSON(http.StatusOK, gin.H{
-		"projectId":     projects[0].ProjectID,
-		"lfxProjectUrl": projects[0].LFXProjectUrl,
-		"name":          projects[0].Name,
-		"industry":      projects[0].Industry,
-		"description":   projects[0].Description,
-		"repoLink":      projects[0].Repository,
-		"websiteUrl":    projects[0].Website,
-		"createdOn":     projects[0].CreatedOn,
-		"amountRaised":  projects[0].AmountRaised,
-		"skills":        projects[0].Skills,
-		"parentOrg":     projects[0].OrganizationID,
+		"project": projects[0],
 	})
 }
 

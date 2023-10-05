@@ -188,12 +188,12 @@ func (client Client) GetProjectsByOrganization(id string) []database.ProjectThum
 
 /*
  * The Following function gets the count of projects per year for a given organization.
- * 
+ *
  * Args: id (id of organization)
  * Returns : counts (slice contatining count of projects and years in a count object)
  */
 
- func (client Client) GetCountOfProjectsByParentOrgID(id string) []database.ProjectCountByYear {
+func (client Client) GetCountOfProjectsByParentOrgID(id string) []database.ProjectCountByYear {
 	queryStmt :=
 		`
         SELECT programYear, COUNT(id) as count
@@ -201,8 +201,8 @@ func (client Client) GetProjectsByOrganization(id string) []database.ProjectThum
 		GROUP BY programYear
 		ORDER BY programYear;
         `
-	// Create a placeholder object, type-defined in responses.go 
-	counts := make([]database.ProjectCountByYear, 0) 
+	// Create a placeholder object, type-defined in responses.go
+	counts := make([]database.ProjectCountByYear, 0)
 
 	// Query the database
 	rowsRs, err := client.Query(queryStmt, id)
@@ -226,4 +226,3 @@ func (client Client) GetProjectsByOrganization(id string) []database.ProjectThum
 
 	return counts
 }
-
