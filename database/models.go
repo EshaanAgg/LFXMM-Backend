@@ -4,6 +4,11 @@ type ParentOrg struct {
 	ID   string `json:"id"`
 	Name string `json:"name"`
 	Logo string `json:"logoUrl"`
+	Description    string  
+	Year    int
+	Term    string
+	Website        string
+
 }
 type Project struct {
 	ID             string
