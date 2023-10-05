@@ -23,3 +23,8 @@ type ProjectDetails struct {
 	CreatedOn      string   `json:"createdOn"`
 	AmountRaised   float64  `json:"amountRaised"`
 }
+
+type ProjectCountByYear struct {
+	ProgramYear int `json:"programYear"`
+	Count       int `json:"count"`
+}

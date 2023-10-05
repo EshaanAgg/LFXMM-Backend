@@ -185,3 +185,45 @@ func (client Client) GetProjectsByOrganization(id string) []database.ProjectThum
 	}
 	return projects
 }
+
+/*
+ * The Following function gets the count of projects per year for a given organization.
+ * 
+ * Args: id (id of organization)
+ * Returns : counts (slice contatining count of projects and years in a count object)
+ */
+
+ func (client Client) GetCountOfProjectsByParentOrgID(id string) []database.ProjectCountByYear {
+	queryStmt :=
+		`
+        SELECT programYear, COUNT(*) as count
+		FROM projects WHERE organizationId = $1
+		GROUP BY programYear
+		ORDER BY programYear;
+        `
+	// Create a placeholder object, type-defined in responses.go 
+	counts := make([]database.ProjectCountByYear, 0) 
+
+	// Query the database
+	rowsRs, err := client.Query(queryStmt, id)
+	if err != nil {
+		fmt.Println("[ERROR] GetCountOfProjectsByParentOrgID query failed.")
+		fmt.Println(err)
+		return counts
+	}
+
+	// Loop through rows of result appending the counts object
+	for rowsRs.Next() {
+		count := database.ProjectCountByYear{}
+
+		err := rowsRs.Scan(&count.ProgramYear, &count.Count)
+		if err != nil {
+			fmt.Println("[ERROR] Can't save to Count struct")
+			return counts
+		}
+		counts = append(counts, count)
+	}
+
+	return counts
+}
+
