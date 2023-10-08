@@ -41,17 +41,7 @@ func getProject(c *gin.Context) {
 	}
 
 	c.IndentedJSON(http.StatusOK, gin.H{
-		"projectId":     projects[0].ProjectID,
-		"lfxProjectUrl": projects[0].LFXProjectUrl,
-		"name":          projects[0].Name,
-		"industry":      projects[0].Industry,
-		"description":   projects[0].Description,
-		"repoLink":      projects[0].Repository,
-		"websiteUrl":    projects[0].Website,
-		"createdOn":     projects[0].CreatedOn,
-		"amountRaised":  projects[0].AmountRaised,
-		"skills":        projects[0].Skills,
-		"parentOrg":     projects[0].OrganizationID,
+		"project": projects[0],
 	})
 }
 
@@ -82,7 +72,7 @@ func getProjectsByYear(c *gin.Context) {
 	year, err := strconv.Atoi(yearParam)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Invalid year parameter. It should be of Integer type.",
+			"message": "Invalid year parameter. It should be of Integer type.",
 		})
 		return
 	}
@@ -92,4 +82,30 @@ func getProjectsByYear(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, gin.H{
 		"projects": projects,
 	})
+}
+
+/*
+ * The following function sends an API response with the number of projects by year
+ * for a given organization (id)
+ */
+func getProjectCount(c *gin.Context) {
+	client := handlers.New()
+	defer client.Close()
+
+	// Get id from HTTP request
+	id := c.Param("id")
+
+	// Check if an org exists with given id
+	org := client.GetOrganizationByID(id)
+
+	if org == nil {
+		c.IndentedJSON(http.StatusNotFound, gin.H{
+			"message": "There is no organization with this ID.",
+		},
+		)
+		return
+	}
+
+	// Send out HTTP response. The function used below is defined under database/handlers
+	c.IndentedJSON(http.StatusOK, client.GetCountOfProjectsByParentOrgID(id))
 }
