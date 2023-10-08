@@ -8,6 +8,31 @@ import (
 	"github.com/lib/pq"
 )
 
+func (client Client) GetProjectsByFilter(filterText string) []database.ProjectThumbail {
+	rowsRs, err := client.Query("SELECT id, name, description, programYear, programTerm FROM projects WHERE name LIKE '%' || $1 OR description LIKE '%' || $1;", filterText)
+
+	if err != nil {
+		fmt.Println("[ERROR] GetAllProjects query failed")
+		fmt.Println(err)
+		return make([]database.ProjectThumbail, 0)
+	}
+	defer rowsRs.Close()
+
+	projs := make([]database.ProjectThumbail, 0)
+
+	for rowsRs.Next() {
+		proj2 := database.ProjectThumbail{}
+		err := rowsRs.Scan(&proj2.ID, &proj2.Name, &proj2.Description, &proj2.ProgramYear, &proj2.ProgramTerm)
+		if err != nil {
+			fmt.Println("[ERROR] Can't save to ProjectThumbail struct")
+			return nil
+		}
+		projs = append(projs, proj2)
+	}
+	return projs
+
+}
+
 func (client Client) CreateProject(proj database.Project) *database.Project {
 	insertStmt := `
         INSERT INTO projects 
