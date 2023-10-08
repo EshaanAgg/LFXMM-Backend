@@ -7,9 +7,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func getAllProjects(c *gin.Context) {
+func getProjectsByFilter(c *gin.Context) {
+	filterText := c.Query("filterText")
 	client := handlers.New()
 	defer client.Close()
 
-	c.IndentedJSON(http.StatusOK, client.GetAllProjects())
+	c.IndentedJSON(http.StatusOK, client.GetProjectsByFilter(filterText))
 }

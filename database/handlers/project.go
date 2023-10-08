@@ -8,8 +8,8 @@ import (
 	"github.com/lib/pq"
 )
 
-func (client Client) GetAllProjects() []database.ProjectThumbail {
-	rowsRs, err := client.Query("SELECT id, name, description, programYear, programTerm FROM projects;")
+func (client Client) GetProjectsByFilter(filterText string) []database.ProjectThumbail {
+	rowsRs, err := client.Query("SELECT id, name, description, programYear, programTerm FROM projects WHERE name LIKE '%' || $1 OR description LIKE '%' || $1;", filterText)
 
 	if err != nil {
 		fmt.Println("[ERROR] GetAllProjects query failed")
