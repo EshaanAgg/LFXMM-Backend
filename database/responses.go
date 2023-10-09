@@ -1,6 +1,6 @@
 package database
 
-type ProjectThumbail struct {
+type ProjectThumbnail struct {
 	ID          string `json:"id"`
 	ProjectURL  string `json:"projectUrl"`
 	Name        string `json:"name"`
