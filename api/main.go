@@ -21,9 +21,7 @@ func Start() {
 	router.GET("/api/projects", getProjectsByFilter)
 	router.GET("/api/orgs/:id/projects/:projectId", getProject)
 	router.GET("/api/orgs/:id/count", getProjectCount)
-	router.GET("/api/projects", getProjectsByFilter)
 	router.GET("/api/orgs/:id/projects", getProjectsByYear)
-	router.GET("/api/orgs/:id/projects/:projectId", getProject)
 
 	router.Run("0.0.0.0:8080")
 }

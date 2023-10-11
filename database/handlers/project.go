@@ -8,29 +8,29 @@ import (
 	"github.com/lib/pq"
 )
 
-func (client Client) GetProjectsByFilter(filterText string) []database.ProjectThumbail {
+func (client Client) GetProjectsByFilter(filterText string) ([]database.ProjectThumbnail, error) {
 	rowsRs, err := client.Query("SELECT id, name, description, programYear, programTerm FROM projects WHERE name LIKE '%' || $1 OR description LIKE '%' || $1;", filterText)
 
 	if err != nil {
-		fmt.Println("[ERROR] GetAllProjects query failed")
+		fmt.Println("[ERROR] GetProjectsByFilter query failed")
 		fmt.Println(err)
-		return make([]database.ProjectThumbail, 0)
+		return nil, err
 	}
 	defer rowsRs.Close()
 
-	projs := make([]database.ProjectThumbail, 0)
+	projs := make([]database.ProjectThumbnail, 0)
 
 	for rowsRs.Next() {
-		proj2 := database.ProjectThumbail{}
+		proj2 := database.ProjectThumbnail{}
 		err := rowsRs.Scan(&proj2.ID, &proj2.Name, &proj2.Description, &proj2.ProgramYear, &proj2.ProgramTerm)
 		if err != nil {
-			fmt.Println("[ERROR] Can't save to ProjectThumbail struct")
-			return nil
+			fmt.Println("[ERROR] Can't save to ProjectThumbnail struct")
+			return nil, err
 		}
 		projs = append(projs, proj2)
 	}
-	return projs
 
+	return projs, nil
 }
 
 func (client Client) CreateProject(proj database.Project) *database.Project {
@@ -52,13 +52,13 @@ func (client Client) CreateProject(proj database.Project) *database.Project {
 	return &proj
 }
 
-func (client Client) GetProjectsByParentOrgID(id string) []database.ProjectThumbail {
+func (client Client) GetProjectsByParentOrgID(id string) []database.ProjectThumbnail {
 	queryStmt := `
         SELECT id, lfxProjectId, name, description, programYear, programTerm 
 		FROM projects WHERE organizationId = $1
     `
 
-	projects := make([]database.ProjectThumbail, 0)
+	projects := make([]database.ProjectThumbnail, 0)
 
 	rowsRs, err := client.Query(queryStmt, id)
 	if err != nil {
@@ -68,7 +68,7 @@ func (client Client) GetProjectsByParentOrgID(id string) []database.ProjectThumb
 	}
 
 	for rowsRs.Next() {
-		proj := database.ProjectThumbail{}
+		proj := database.ProjectThumbnail{}
 		lfxId := ""
 
 		err := rowsRs.Scan(&proj.ID, &lfxId, &proj.Name, &proj.Description, &proj.ProgramYear, &proj.ProgramTerm)
@@ -145,7 +145,7 @@ func (client Client) GetProjectById(projectID string) ([]database.ProjectDetails
 	return projects, nil
 }
 
-func (client Client) GetProjectsByYear(id string, year int) []database.ProjectThumbail {
+func (client Client) GetProjectsByYear(id string, year int) []database.ProjectThumbnail {
 
 	queryStmt :=
 		`
@@ -154,7 +154,7 @@ func (client Client) GetProjectsByYear(id string, year int) []database.ProjectTh
     	WHERE organizationId = $1 AND programYear = $2
 		`
 
-	projects := make([]database.ProjectThumbail, 0)
+	projects := make([]database.ProjectThumbnail, 0)
 
 	rowsRs, err := client.Query(queryStmt, id, year)
 	if err != nil {
@@ -164,7 +164,7 @@ func (client Client) GetProjectsByYear(id string, year int) []database.ProjectTh
 	}
 
 	for rowsRs.Next() {
-		proj := database.ProjectThumbail{}
+		proj := database.ProjectThumbnail{}
 		lfxId := ""
 
 		err := rowsRs.Scan(&proj.ID, &lfxId, &proj.Name, &proj.Description, &proj.ProgramYear, &proj.ProgramTerm)
@@ -178,7 +178,7 @@ func (client Client) GetProjectsByYear(id string, year int) []database.ProjectTh
 	return projects
 }
 
-func (client Client) GetProjectsByOrganization(id string) []database.ProjectThumbail {
+func (client Client) GetProjectsByOrganization(id string) []database.ProjectThumbnail {
 
 	queryStmt :=
 		`
@@ -187,7 +187,7 @@ func (client Client) GetProjectsByOrganization(id string) []database.ProjectThum
     	WHERE organizationId = $1
 		`
 
-	projects := make([]database.ProjectThumbail, 0)
+	projects := make([]database.ProjectThumbnail, 0)
 
 	rowsRs, err := client.Query(queryStmt, id)
 	if err != nil {
@@ -197,7 +197,7 @@ func (client Client) GetProjectsByOrganization(id string) []database.ProjectThum
 	}
 
 	for rowsRs.Next() {
-		proj := database.ProjectThumbail{}
+		proj := database.ProjectThumbnail{}
 		lfxId := ""
 
 		err := rowsRs.Scan(&proj.ID, &lfxId, &proj.Name, &proj.Description, &proj.ProgramYear, &proj.ProgramTerm)
