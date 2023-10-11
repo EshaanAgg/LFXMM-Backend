@@ -9,7 +9,7 @@ import (
 )
 
 func (client Client) GetProjectsByFilter(filterText string) ([]database.ProjectThumbnail, error) {
-	rowsRs, err := client.Query("SELECT id, name, description, programYear, programTerm FROM projects WHERE name LIKE '%' || $1 OR description LIKE '%' || $1;", filterText)
+	rowsRs, err := client.Query("SELECT id, name, description, programYear, programTerm FROM projects WHERE name LIKE '%$1%' OR description LIKE '%$1$';", filterText)
 
 	if err != nil {
 		fmt.Println("[ERROR] GetProjectsByFilter query failed")

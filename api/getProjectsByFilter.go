@@ -18,15 +18,12 @@ func getProjectsByFilter(c *gin.Context) {
 	var err error
 
 	if filterText != "" {
-
 		projects, err = client.GetProjectsByFilter(filterText)
 	} else {
-
 		projects = client.GetProjectsByOrganization("1")
 	}
 
 	if err != nil {
-
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{
 			"error": "Failed to fetch projects",
 		})
