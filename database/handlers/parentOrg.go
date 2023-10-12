@@ -4,14 +4,12 @@ import (
 	"database/sql"
 	"eshaanagg/lfx/database"
 	"fmt"
+
+	"github.com/lib/pq"
 )
 
 /*
- * The following function makes a database query to get information of all
- * organizations and returns a slice containing the same.
- *
- * Method for:  Client (object - database instance)
- * Returns:     orgs (slice of ParentOrg objects, ParentOrg defined at ../models.go)
+ * Returns all organizations.
  */
 func (client Client) GetAllParentOrgs() []database.ParentOrg {
 
@@ -25,10 +23,7 @@ func (client Client) GetAllParentOrgs() []database.ParentOrg {
 	}
 	defer rowsRs.Close()
 
-	/* Create slice from sql.Rows.
-	 * This function is defined in this file.
-	 */
-	orgs, err := parseResultSetToSlice(rowsRs)
+	orgs, err := parseAsParentOrgSlice(rowsRs)
 	if err != nil {
 		fmt.Println("[ERROR] Can't convert to result set in GetAllParentOrgs function.")
 		fmt.Println(err)
@@ -39,16 +34,12 @@ func (client Client) GetAllParentOrgs() []database.ParentOrg {
 }
 
 /*
- * This function gets all organization names.
- *
- * Method for: Client
- * Returns:    names (slice of organization names)
+ * Returns all the organization names.
  */
 func (client Client) GetAllOrgNames() []string {
 	orgs := client.GetAllParentOrgs()
 	names := make([]string, 0)
 
-	// Loop over orgs slice to create names slice.
 	for _, org := range orgs {
 		names = append(names, org.Name)
 	}
@@ -57,11 +48,8 @@ func (client Client) GetAllOrgNames() []string {
 }
 
 /*
- * The following function inserts new data into the database.
- *
- * Method for:  Client (object - database instance)
- * Args:        name, logo
- * Returns:     org (ParentOrg object with the data inserted)
+ * Inserts a new organization into the database
+ * Skills are not populated manually. They are calculated from the projects that are conducted under an organization.
  */
 func (client Client) CreateParentOrg(name string, logo string) *database.ParentOrg {
 	// Create a placeholder object.
@@ -74,10 +62,6 @@ func (client Client) CreateParentOrg(name string, logo string) *database.ParentO
         RETURNING id;
         `
 
-		/* Insert the object/data into the database.
-		 * Note: Scan is used only for the purposes of getting errors
-		 *       as QueryRow doesn't return an error.
-		 */
 	err := client.QueryRow(insertStmt, org.Name, org.Logo).Scan(&org.ID)
 
 	if err != nil {
@@ -91,10 +75,6 @@ func (client Client) CreateParentOrg(name string, logo string) *database.ParentO
 
 /*
  * Function to search for organizations by name.
- *
- * Method for:  Client
- * Args:        name (search argument)
- * Returns:     orgs[0] (first ParentOrg object(row) in the database with the given name)
  */
 func (client Client) GetOrganizationByName(name string) *database.ParentOrg {
 	// Query into the database.
@@ -113,7 +93,7 @@ func (client Client) GetOrganizationByName(name string) *database.ParentOrg {
 	defer rowsRs.Close()
 
 	// Create a ParentOrg slice.
-	orgs, err := parseResultSetToSlice(rowsRs) // This function is defined in this file.
+	orgs, err := parseAsParentOrgSlice(rowsRs) // This function is defined in this file.
 	if err != nil {
 		fmt.Println(err)
 		return nil
@@ -129,10 +109,7 @@ func (client Client) GetOrganizationByName(name string) *database.ParentOrg {
 }
 
 /*
- * This function is mostly the same as the function written above (GetOrganizationByName)
- * with one difference, the arguments.
- *
- * Args: id
+ * Returns an organization with the provided ID
  */
 func (client Client) GetOrganizationByID(id string) *database.ParentOrg {
 	queryStmt :=
@@ -149,7 +126,7 @@ func (client Client) GetOrganizationByID(id string) *database.ParentOrg {
 	}
 	defer rowsRs.Close()
 
-	orgs, err := parseResultSetToSlice(rowsRs) // This function is defined below.
+	orgs, err := parseAsParentOrgSlice(rowsRs) // This function is defined below.
 	if err != nil {
 		fmt.Println(err)
 		return nil
@@ -163,14 +140,14 @@ func (client Client) GetOrganizationByID(id string) *database.ParentOrg {
 }
 
 // Helper function to convert the resultset of a SELECT * query to a slice of ParentOrg struct.
-func parseResultSetToSlice(rowsRs *sql.Rows) ([]database.ParentOrg, error) {
+func parseAsParentOrgSlice(rowsRs *sql.Rows) ([]database.ParentOrg, error) {
 	// Create a placeholder.
 	orgs := make([]database.ParentOrg, 0)
 
 	// Loop through the values of rows.
 	for rowsRs.Next() {
 		org := database.ParentOrg{}
-		err := rowsRs.Scan(&org.ID, &org.Name, &org.Logo)
+		err := rowsRs.Scan(&org.ID, &org.Name, &org.Logo, pq.Array(&org.Skills))
 		if err != nil {
 			fmt.Println("[ERROR] Can't save to ParentOrg struct")
 			return nil, err

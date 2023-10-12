@@ -24,7 +24,7 @@ func getProject(c *gin.Context) {
 	}
 
 	// Using GetProjectById to get the project by project ID
-	projects, err := client.GetProjectById(projectID)
+	project, err := client.GetProjectById(projectID)
 	if err != nil {
 		c.IndentedJSON(http.StatusNotFound, gin.H{
 			"message": "No project was found with the provided ID.",
@@ -33,7 +33,7 @@ func getProject(c *gin.Context) {
 	}
 
 	// Check if the organization ID associated with the project matches the supplied orgId
-	if projects[0].OrganizationID != orgID {
+	if project.OrganizationID != orgID {
 		c.IndentedJSON(http.StatusForbidden, gin.H{
 			"message": "This project does not belong to the specified organization.",
 		})
@@ -41,7 +41,7 @@ func getProject(c *gin.Context) {
 	}
 
 	c.IndentedJSON(http.StatusOK, gin.H{
-		"project": projects[0],
+		"project": project,
 	})
 }
 
@@ -85,8 +85,7 @@ func getProjectsByYear(c *gin.Context) {
 }
 
 /*
- * The following function sends an API response with the number of projects by year
- * for a given organization (id)
+ * Returns the number of projects for each year for a given organization (identified by the URL parameter `id`)
  */
 func getProjectCount(c *gin.Context) {
 	client := handlers.New()

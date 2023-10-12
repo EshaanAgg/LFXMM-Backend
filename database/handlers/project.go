@@ -1,13 +1,16 @@
 package handlers
 
 import (
+	"database/sql"
 	"eshaanagg/lfx/database"
 	"fmt"
-	"strings"
 
 	"github.com/lib/pq"
 )
 
+/*
+ * Used to save a project to the database
+ */
 func (client Client) CreateProject(proj database.Project) *database.Project {
 	insertStmt := `
         INSERT INTO projects 
@@ -16,7 +19,20 @@ func (client Client) CreateProject(proj database.Project) *database.Project {
         RETURNING id;
     `
 
-	err := client.QueryRow(insertStmt, proj.LFXProjectID, proj.Name, pq.Array(proj.Industry), proj.Description, pq.Array(proj.Skills), proj.ProgramYear, proj.ProgramTerm, proj.Website, proj.Repository, proj.AmountRaised, proj.OrganizationID).Scan(&proj.ID)
+	err := client.QueryRow(
+		insertStmt,
+		proj.LFXProjectID,
+		proj.Name,
+		pq.Array(proj.Industry),
+		proj.Description,
+		pq.Array(proj.Skills),
+		proj.ProgramYear,
+		proj.ProgramTerm,
+		proj.Website,
+		proj.Repository,
+		proj.AmountRaised,
+		proj.OrganizationID,
+	).Scan(&proj.ID)
 
 	if err != nil {
 		fmt.Println("[ERROR] Can't add new project.")
@@ -27,38 +43,34 @@ func (client Client) CreateProject(proj database.Project) *database.Project {
 	return &proj
 }
 
+/*
+ * Get all the project (thumbnails) for a particular organization
+ */
 func (client Client) GetProjectsByParentOrgID(id string) []database.ProjectThumbnail {
 	queryStmt := `
-        SELECT id, lfxProjectId, name, description, programYear, programTerm 
+        SELECT id, lfxProjectId, name, description, programYear, programTerm, skills
 		FROM projects WHERE organizationId = $1
     `
-
-	projects := make([]database.ProjectThumbnail, 0)
 
 	rowsRs, err := client.Query(queryStmt, id)
 	if err != nil {
 		fmt.Println("[ERROR] GetProjectsByParentOrgID query failed.")
 		fmt.Println(err)
-		return projects
+		return nil
 	}
 
-	for rowsRs.Next() {
-		proj := database.ProjectThumbnail{}
-		lfxId := ""
-
-		err := rowsRs.Scan(&proj.ID, &lfxId, &proj.Name, &proj.Description, &proj.ProgramYear, &proj.ProgramTerm)
-		if err != nil {
-			fmt.Println("[ERROR] Can't save to Project struct")
-			return projects
-		}
-		proj.ProjectURL = "https://mentorship.lfx.linuxfoundation.org/project/" + lfxId
-		projects = append(projects, proj)
+	projects, err := parseAsProjectThumbnailSlice(rowsRs)
+	if err != nil {
+		return nil
 	}
 
 	return projects
 }
 
-func (client Client) GetProjectById(projectID string) ([]database.ProjectDetails, error) {
+/*
+ * Returns the complete project object from the database
+ */
+func (client Client) GetProjectById(projectID string) (*database.ProjectDetails, error) {
 	queryStmt :=
 		`
     	SELECT id, lfxProjectId, name, description, industry, website, amountRaised, skills, organizationId, repository
@@ -77,9 +89,8 @@ func (client Client) GetProjectById(projectID string) ([]database.ProjectDetails
 	projects := []database.ProjectDetails{}
 
 	for rows.Next() {
-		project := database.ProjectDetails{} // Create a single ProjectDetails struct to hold each row
+		project := database.ProjectDetails{}
 		lfxId := ""
-		var skillsStr string
 
 		err := rows.Scan(
 			&project.ProjectID,
@@ -89,20 +100,17 @@ func (client Client) GetProjectById(projectID string) ([]database.ProjectDetails
 			&project.Industry,
 			&project.Website,
 			&project.AmountRaised,
-			&skillsStr,
+			pq.Array(&project.Skills),
 			&project.OrganizationID,
 			&project.Repository,
 		)
 		project.LFXProjectUrl = "https://mentorship.lfx.linuxfoundation.org/project/" + lfxId
+
 		if err != nil {
 			fmt.Println("[ERROR] GetProjectByProjectId scan failed.")
 			fmt.Println(err)
 			return nil, err
 		}
-
-		// Clean up and split the skills data
-		cleanedSkills := strings.Split(strings.Trim(skillsStr, "{} "), ",")
-		project.Skills = cleanedSkills
 
 		projects = append(projects, project)
 	}
@@ -117,86 +125,71 @@ func (client Client) GetProjectById(projectID string) ([]database.ProjectDetails
 		return nil, fmt.Errorf("project not found with the provided id")
 	}
 
-	return projects, nil
+	return &projects[0], nil
 }
 
+/*
+ * Returns project (thumbnails) filtered by the parent organization ID (`id`) and the year they came in (`year`)
+ */
 func (client Client) GetProjectsByYear(id string, year int) []database.ProjectThumbnail {
 
 	queryStmt :=
 		`
-		SELECT id, lfxProjectId, name, description, programYear, programTerm 
-    	FROM projects 
+		SELECT id, lfxProjectId, name, description, programYear, programTerm, skills
+    	FROM projects
     	WHERE organizationId = $1 AND programYear = $2
 		`
-
-	projects := make([]database.ProjectThumbnail, 0)
 
 	rowsRs, err := client.Query(queryStmt, id, year)
 	if err != nil {
 		fmt.Println("[ERROR] GetProjectsByYear query failed.")
 		fmt.Println(err)
-		return projects
+		return nil
 	}
 
-	for rowsRs.Next() {
-		proj := database.ProjectThumbnail{}
-		lfxId := ""
-
-		err := rowsRs.Scan(&proj.ID, &lfxId, &proj.Name, &proj.Description, &proj.ProgramYear, &proj.ProgramTerm)
-		if err != nil {
-			fmt.Println("[ERROR] Can't save to Project struct")
-			return projects
-		}
-		proj.ProjectURL = "https://mentorship.lfx.linuxfoundation.org/project/" + lfxId
-		projects = append(projects, proj)
+	projects, err := parseAsProjectThumbnailSlice(rowsRs)
+	if err != nil {
+		return nil
 	}
+
 	return projects
 }
 
+/*
+ * Returns project (thumbnails) filtered by the parent organization ID (`id`)
+ */
 func (client Client) GetProjectsByOrganization(id string) []database.ProjectThumbnail {
 
 	queryStmt :=
 		`
-		SELECT id, lfxProjectId, name, description, programYear, programTerm 
-    	FROM projects 
+		SELECT id, lfxProjectId, name, description, programYear, programTerm, skills
+    	FROM projects
     	WHERE organizationId = $1
 		`
-
-	projects := make([]database.ProjectThumbnail, 0)
 
 	rowsRs, err := client.Query(queryStmt, id)
 	if err != nil {
 		fmt.Println("[ERROR] GetProjectsByOrganization query failed.")
 		fmt.Println(err)
-		return projects
+		return nil
 	}
 
-	for rowsRs.Next() {
-		proj := database.ProjectThumbnail{}
-		lfxId := ""
-
-		err := rowsRs.Scan(&proj.ID, &lfxId, &proj.Name, &proj.Description, &proj.ProgramYear, &proj.ProgramTerm)
-		if err != nil {
-			fmt.Println("[ERROR] Can't save to Project struct")
-			return projects
-		}
-		proj.ProjectURL = "https://mentorship.lfx.linuxfoundation.org/project/" + lfxId
-		projects = append(projects, proj)
+	projects, err := parseAsProjectThumbnailSlice(rowsRs)
+	if err != nil {
+		return nil
 	}
+
 	return projects
 }
 
 /*
- * The Following function gets the count of projects per year for a given organization.
- *
- * Args: id (id of organization)
- * Returns : counts (slice contatining count of projects and years in a count object)
+ * Returns the count of projects per year for a given organization.
  */
 
 func (client Client) GetCountOfProjectsByParentOrgID(id string) []database.ProjectCountByYear {
 	queryStmt :=
 		`
-        SELECT programYear, COUNT(id) as count
+        SELECT programYear, COUNT(*) as count
 		FROM projects WHERE organizationId = $1
 		GROUP BY programYear
 		ORDER BY programYear;
@@ -225,4 +218,34 @@ func (client Client) GetCountOfProjectsByParentOrgID(id string) []database.Proje
 	}
 
 	return counts
+}
+
+// Helper function to convert the resultset of a SELECT * query to a slice of ProjectThumbail struct array.
+func parseAsProjectThumbnailSlice(rowsRs *sql.Rows) ([]database.ProjectThumbnail, error) {
+	projects := make([]database.ProjectThumbnail, 0)
+
+	for rowsRs.Next() {
+		proj := database.ProjectThumbnail{}
+		lfxId := ""
+
+		err := rowsRs.Scan(
+			&proj.ID,
+			&lfxId,
+			&proj.Name,
+			&proj.Description,
+			&proj.ProgramYear,
+			&proj.ProgramTerm,
+			pq.Array(&proj.Skills),
+		)
+
+		if err != nil {
+			fmt.Println("[ERROR] Can't save to ProjectThumbnail struct")
+			return nil, err
+		}
+
+		proj.ProjectURL = "https://mentorship.lfx.linuxfoundation.org/project/" + lfxId
+		projects = append(projects, proj)
+	}
+
+	return projects, nil
 }

@@ -1,6 +1,7 @@
 package project
 
 import (
+	"eshaanagg/lfx/database/handlers"
 	"fmt"
 )
 
@@ -22,5 +23,14 @@ func Parse() {
 			addToDatabase(project)
 		}
 		fmt.Println()
+	}
+}
+
+func AddSkillsToOrgs() {
+	client := handlers.New()
+
+	orgs := client.GetAllParentOrgs()
+	for ind, org := range orgs {
+		projects := client.GetProjectsByOrganization()
 	}
 }

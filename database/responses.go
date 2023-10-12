@@ -1,12 +1,13 @@
 package database
 
 type ProjectThumbnail struct {
-	ID          string `json:"id"`
-	ProjectURL  string `json:"projectUrl"`
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	ProgramYear int    `json:"programYear"`
-	ProgramTerm string `json:"programTerm"`
+	ID          string   `json:"id"`
+	ProjectURL  string   `json:"projectUrl"`
+	Name        string   `json:"name"`
+	Description string   `json:"description"`
+	ProgramYear int      `json:"programYear"`
+	ProgramTerm string   `json:"programTerm"`
+	Skills      []string `json:"skills"`
 }
 
 type ProjectDetails struct {
