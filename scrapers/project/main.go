@@ -26,11 +26,40 @@ func Parse() {
 	}
 }
 
-func AddSkillsToOrgs() {
+func UpdateSkillsForOrgs() {
 	client := handlers.New()
+	defer client.Close()
 
 	orgs := client.GetAllParentOrgs()
-	for ind, org := range orgs {
-		projects := client.GetProjectsByOrganization()
+	for _, org := range orgs {
+		projects := client.GetProjectsByOrganization(org.ID)
+		frequencyMap := make(map[string]int)
+
+		for _, project := range projects {
+			for _, skill := range project.Skills {
+				if _, exists := frequencyMap[skill]; exists {
+					frequencyMap[skill]++
+				} else {
+					frequencyMap[skill] = 1
+				}
+			}
+		}
+
+		skills := getKeysSortedByFrequency(frequencyMap)
+
+		if len(skills) == 0 {
+			continue
+		}
+
+		skillInterface := make([]interface{}, 0)
+		for _, skill := range skills {
+			skillInterface = append(skillInterface, skill)
+		}
+
+		err := client.SetSkillsForOrg(org.ID, skillInterface)
+		if err != nil {
+			fmt.Println("[ERROR] There was an error in updating the skills for the parent organization.")
+			fmt.Println(err)
+		}
 	}
 }

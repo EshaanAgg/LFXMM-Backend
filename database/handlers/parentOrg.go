@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"eshaanagg/lfx/database"
 	"fmt"
+	"strings"
 
 	"github.com/lib/pq"
 )
@@ -55,14 +56,14 @@ func (client Client) CreateParentOrg(name string, logo string) *database.ParentO
 	// Create a placeholder object.
 	org := database.ParentOrg{ID: "0", Name: name, Logo: logo}
 
-	insertStmt :=
+	updateStmt :=
 		`
         INSERT INTO parentOrgs (name, logo) 
         VALUES($1, $2) 
         RETURNING id;
         `
 
-	err := client.QueryRow(insertStmt, org.Name, org.Logo).Scan(&org.ID)
+	err := client.QueryRow(updateStmt, org.Name, org.Logo).Scan(&org.ID)
 
 	if err != nil {
 		fmt.Println("[ERROR] Can't add a new parent organization.")
@@ -137,6 +138,41 @@ func (client Client) GetOrganizationByID(id string) *database.ParentOrg {
 	}
 
 	return &orgs[0]
+}
+
+/*
+ * Used to update the skills list for an organization
+ */
+func (client Client) SetSkillsForOrg(id string, skills []interface{}) error {
+	params := make([]string, 0, len(skills))
+	for i := range skills {
+		params = append(params, fmt.Sprintf("$%v", i+1))
+	}
+
+	updateStmt := fmt.Sprintf(`
+		UPDATE parentOrgs
+		SET skills = ARRAY[%s]
+		WHERE id = $%v
+		RETURNING id;
+		`,
+		strings.Join(params, ", "),
+		len(skills)+1,
+	)
+	// We append the id to the skills array as well so that the same can be destructed while executing the query
+	skills = append(skills, id)
+
+	_, err := client.Exec(
+		updateStmt,
+		skills...,
+	)
+
+	if err != nil {
+		fmt.Println("[ERROR] Can't add new project.")
+		fmt.Println(err)
+		return nil
+	}
+
+	return nil
 }
 
 // Helper function to convert the resultset of a SELECT * query to a slice of ParentOrg struct.
