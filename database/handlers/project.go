@@ -8,6 +8,31 @@ import (
 	"github.com/lib/pq"
 )
 
+func (client Client) GetProjectsByFilter(filterText string) ([]database.ProjectThumbnail, error) {
+	rowsRs, err := client.Query("SELECT id, name, description, programYear, programTerm FROM projects WHERE name LIKE '%$1%' OR description LIKE '%$1$';", filterText)
+
+	if err != nil {
+		fmt.Println("[ERROR] GetProjectsByFilter query failed")
+		fmt.Println(err)
+		return nil, err
+	}
+	defer rowsRs.Close()
+
+	projs := make([]database.ProjectThumbnail, 0)
+
+	for rowsRs.Next() {
+		proj2 := database.ProjectThumbnail{}
+		err := rowsRs.Scan(&proj2.ID, &proj2.Name, &proj2.Description, &proj2.ProgramYear, &proj2.ProgramTerm)
+		if err != nil {
+			fmt.Println("[ERROR] Can't save to ProjectThumbnail struct")
+			return nil, err
+		}
+		projs = append(projs, proj2)
+	}
+
+	return projs, nil
+}
+
 func (client Client) CreateProject(proj database.Project) *database.Project {
 	insertStmt := `
         INSERT INTO projects 
