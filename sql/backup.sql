@@ -905,4 +905,3 @@ ALTER TABLE ONLY public.projects
 --
 -- PostgreSQL database dump complete
 --
-
