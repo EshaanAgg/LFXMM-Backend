@@ -15,7 +15,8 @@ func (client Client) GetProjectsByFilter(filterText string) ([]database.ProjectT
 	rowsRs, err := client.Query(`
 		SELECT id, name, description, programYear, programTerm 
 		FROM projects 
-		WHERE name LIKE '%$1%' OR description LIKE '%$1$';
+		WHERE name LIKE '%$1%' OR description LIKE '%$1$'
+		ORDER BY name;
 		`, filterText)
 
 	if err != nil {
@@ -163,6 +164,7 @@ func (client Client) GetProjectsByYear(id string, year int) []database.ProjectTh
 		SELECT id, lfxProjectId, name, description, programYear, programTerm, skills
     	FROM projects
     	WHERE organizationId = $1 AND programYear = $2
+		ORDER BY name
 		`
 
 	rowsRs, err := client.Query(queryStmt, id, year)
@@ -190,6 +192,7 @@ func (client Client) GetProjectsByOrganization(id string) []database.ProjectThum
 		SELECT id, lfxProjectId, name, description, programYear, programTerm, skills
     	FROM projects
     	WHERE organizationId = $1
+		ORDER BY name
 		`
 
 	rowsRs, err := client.Query(queryStmt, id)

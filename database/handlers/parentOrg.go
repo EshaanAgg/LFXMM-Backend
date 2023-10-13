@@ -15,7 +15,7 @@ import (
 func (client Client) GetAllParentOrgs() []database.ParentOrg {
 
 	// Get all orgs as sql.Rows object.
-	rowsRs, err := client.Query("SELECT * FROM parentOrgs;")
+	rowsRs, err := client.Query("SELECT * FROM parentOrgs ORDER BY name")
 
 	if err != nil {
 		fmt.Println("[ERROR] GetAllParentOrgs query failed")
