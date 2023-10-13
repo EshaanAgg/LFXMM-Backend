@@ -37,11 +37,7 @@ func UpdateSkillsForOrgs() {
 
 		for _, project := range projects {
 			for _, skill := range project.Skills {
-				if _, exists := frequencyMap[skill]; exists {
-					frequencyMap[skill]++
-				} else {
-					frequencyMap[skill] = 1
-				}
+				frequencyMap[skill]++
 			}
 		}
 

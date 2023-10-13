@@ -2,14 +2,18 @@ package main
 
 import (
 	"eshaanagg/lfx/api"
+	"fmt"
 
 	"github.com/joho/godotenv"
 )
 
 func main() {
 	// Populate the environment variables
-	godotenv.Load(".env")
-	// Scrape()
+	err := godotenv.Load(".env")
+	if err != nil {
+		fmt.Println("Cannot load the environment variables")
+		fmt.Println(err)
+	}
 
 	api.Start()
 }

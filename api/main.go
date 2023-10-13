@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -23,5 +24,9 @@ func Start() {
 	router.GET("/api/orgs/:id/count", getProjectCount)
 	router.GET("/api/orgs/:id/projects", getProjectsByYear)
 
-	router.Run("0.0.0.0:8080")
+	err := router.Run("0.0.0.0:8080")
+	if err != nil {
+		fmt.Println("Router was not able to run and map the requests")
+		fmt.Println(err)
+	}
 }

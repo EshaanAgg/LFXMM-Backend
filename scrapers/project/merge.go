@@ -1,6 +1,9 @@
 package project
 
-import "eshaanagg/lfx/database/handlers"
+import (
+	"eshaanagg/lfx/database/handlers"
+	"fmt"
+)
 
 var getIdStmt = `SELECT id FROM parentOrgs WHERE name = $1`
 var updateStmt = `UPDATE projects SET organizationId = $1 WHERE organizationId = $2`
@@ -38,12 +41,20 @@ func Merge() {
 	for _, mergeList := range toMerge {
 		mainOrg := mergeList[0]
 		var mainOrgId string
-		client.QueryRow(getIdStmt, mainOrg).Scan(&mainOrgId)
+
+		err := client.QueryRow(getIdStmt, mainOrg).Scan(&mainOrgId)
+		if err != nil {
+			fmt.Println(err)
+		}
 
 		for i := 1; i < len(mergeList); i++ {
 			org := mergeList[i]
 			var orgId string
-			client.QueryRow(getIdStmt, org).Scan(&orgId)
+
+			err := client.QueryRow(getIdStmt, org).Scan(&orgId)
+			if err != nil {
+				fmt.Println(err)
+			}
 
 			client.QueryRow(updateStmt, mainOrgId, orgId)
 			client.QueryRow(deleteStmt, orgId)
