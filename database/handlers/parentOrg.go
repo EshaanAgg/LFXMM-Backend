@@ -175,6 +175,42 @@ func (client Client) SetSkillsForOrg(id string, skills []interface{}) error {
 	return nil
 }
 
+/*
+ * The following fuction gets the description of a given organization from the database.
+ * If an error is encountered, returns an empty string.
+ * Method for:  Client
+ * Args:        id
+ * Returns:     description (string) of organization with given id
+ */
+ func (client Client) GetOrganizationDescription (id string) string {
+
+	// Query the database
+	queryStmt :=
+		`
+        SELECT {field_name_for_org_description} FROM parentOrgs 
+        WHERE id = $1;
+        `
+
+	rowsRs, err := client.Query(queryStmt, id)
+	if err != nil {
+		fmt.Println("[ERROR] GetOrganizationByID query failed")
+		fmt.Println(err)
+		return ""
+	}
+	defer rowsRs.Close()
+
+	var description string
+
+	for rowsRs.Next() {
+		err := rowsRs.Scan(&description)
+		if err != nil {
+			fmt.Println("[ERROR] Can't save to Count struct")
+			return ""
+		}
+	}
+	return description
+}
+
 // Helper function to convert the resultset of a SELECT * query to a slice of ParentOrg struct.
 func parseAsParentOrgSlice(rowsRs *sql.Rows) ([]database.ParentOrg, error) {
 	// Create a placeholder.
