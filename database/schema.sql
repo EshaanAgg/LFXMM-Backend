@@ -26,3 +26,9 @@ CREATE TABLE projects (
 	  REFERENCES parentOrgs(id)
     ON DELETE CASCADE
 );
+
+CREATE TABLE uniqueSkills (
+  id SERIAL PRIMARY KEY,     -- An auto-incrementing unique identifier
+  skill VARCHAR UNIQUE NOT NULL,  -- The skill name (unique constraint)
+  frequency INTEGER NOT NULL  -- The frequency of the skill
+);

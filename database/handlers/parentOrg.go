@@ -175,6 +175,60 @@ func (client Client) SetSkillsForOrg(id string, skills []interface{}) error {
 	return nil
 }
 
+func (client Client) SaveUniqueSkillsMaptoDb(skillsMap map[string]int) error {
+	insertStmt := `
+		INSERT INTO uniqueSkills (skill, frequency)
+		VALUES ($1, $2)
+		ON CONFLICT (skill) DO UPDATE SET frequency = EXCLUDED.frequency
+	`
+
+	stmt, err := client.Prepare(insertStmt)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	for skill, frequency := range skillsMap {
+		_, err := stmt.Exec(skill, frequency)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (client Client) GetAllSkills() ([]database.UniqueSkills, error) {
+	query := `
+		SELECT skill, frequency 
+		FROM uniqueSkills
+		ORDER BY frequency DESC
+	`
+
+	rows, err := client.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var allSkills []database.UniqueSkills
+
+	for rows.Next() {
+		var skill database.UniqueSkills
+		err := rows.Scan(&skill.Skill, &skill.Frequency)
+		if err != nil {
+			return nil, err
+		}
+		allSkills = append(allSkills, skill)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return allSkills, nil
+}
+
 // Helper function to convert the resultset of a SELECT * query to a slice of ParentOrg struct.
 func parseAsParentOrgSlice(rowsRs *sql.Rows) ([]database.ParentOrg, error) {
 	// Create a placeholder.

@@ -20,3 +20,8 @@ type Project struct {
 	OrganizationID string
 	Website        string
 }
+
+type UniqueSkills struct {
+	Skill     string
+	Frequency int
+}

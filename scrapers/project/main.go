@@ -21,8 +21,22 @@ func Parse() {
 			fmt.Println(err)
 		} else {
 			addToDatabase(project)
+			UpdateUniqueSkillsMap(project)
 		}
 		fmt.Println()
+	}
+
+	UpdateSkillsForOrgs()
+
+	//Save unique skills to the database
+	client := handlers.New()
+	defer client.Close()
+
+	addedSkill := client.SaveUniqueSkillsMaptoDb(uniqueSkillsMap)
+	if addedSkill != nil {
+		fmt.Println("[ERROR] Can't save this skills map to database.")
+	} else {
+		fmt.Println("[SUCCESS] Skills Map added.")
 	}
 }
 
@@ -56,6 +70,25 @@ func UpdateSkillsForOrgs() {
 		if err != nil {
 			fmt.Println("[ERROR] There was an error in updating the skills for the parent organization.")
 			fmt.Println(err)
+		}
+	}
+}
+
+var uniqueSkillsMap = make(map[string]int)
+
+// UpdateUniqueSkillsMap updates the unique skills map.
+func UpdateUniqueSkillsMap(projRes *projectResponse) {
+	for _, skill := range projRes.ApprenticeNeeds.Skills {
+		skill = trim(skill)
+		if isSingleWord(skill) {
+			if freq, exists := uniqueSkillsMap[skill]; exists {
+				// Increment the frequency
+				freq++
+				uniqueSkillsMap[skill] = freq
+			} else {
+				// Initialize the frequency to 1
+				uniqueSkillsMap[skill] = 1
+			}
 		}
 	}
 }
