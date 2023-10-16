@@ -22,6 +22,6 @@ type Project struct {
 }
 
 type UniqueSkills struct {
-	Skill     string
-	Frequency int
+	Skill     string `json:"skillName"`
+	Frequency int    `json:"frequency"`
 }
