@@ -49,9 +49,10 @@ If you face any errors in running the above command due to the mismatch of the `
 docker exec -it lfx-backend-db-1 pg_dump -U admin -h localhost -p 5432 lfx  > ./sql/backup.sql
 ```
 
-#### Debug Help
+### Debugging FAQ
 
-If you have changed the `backup.sql` file and the new data is not being reflected in your database, then it you might need to delete all the Docker's cache and build volumes by running the command `docker system prune -a`, and then re-running the container with `docker compose up`.
+- If you have changed the `backup.sql` file and the new data is not being reflected in your database, then it you might need to delete all the Docker's cache and build volumes by running the command `docker system prune -a`, and then re-running the container with `docker compose up`.
+- You need to setup the `OPENAI_API_KEY` environment variable only if you want to use AI scrapers to update the data of the database. You can find an example usage of the same in the [fetching of organization description](./scrapers/project/openAI.go).
 
 ### Individual Docker Images
 
@@ -62,7 +63,7 @@ docker build -t db . -f sql.Dockerfile
 docker build -t api . -f api.Dockerfile
 ```
 
-## Publish to DockerHub
+## Publishing to DockerHub
 
 These commands are used to publish the [`api`](https://hub.docker.com/repository/docker/eshaanagg/lfx-api) and [`db`](https://hub.docker.com/repository/docker/eshaanagg/lfx-db) to `DockerHub` as images so that the same can be used in the frontend directly and the contributors need not require setup the backend un-neccesarily. You must be logged-in as the administrator to `eshaanagg` for these commands to work.
 

@@ -28,6 +28,7 @@ func getOrg(c *gin.Context) {
 		"id":           org.ID,
 		"logo":         org.Logo,
 		"org":          org.Name,
+		"desc":         org.Description,
 		"projectCount": len(projects),
 	})
 }

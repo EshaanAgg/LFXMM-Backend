@@ -54,7 +54,12 @@ func (client Client) GetAllOrgNames() []string {
  */
 func (client Client) CreateParentOrg(name string, logo string) *database.ParentOrg {
 	// Create a placeholder object.
-	org := database.ParentOrg{ID: "0", Name: name, Logo: logo}
+	org := database.ParentOrg{
+		ID:          "0",
+		Name:        name,
+		Logo:        logo,
+		Description: "",
+	}
 
 	updateStmt :=
 		`
@@ -167,7 +172,33 @@ func (client Client) SetSkillsForOrg(id string, skills []interface{}) error {
 	)
 
 	if err != nil {
-		fmt.Printf("[ERROR] Can't ppdate the skills for the organization %v.\n", id)
+		fmt.Printf("[ERROR] Can't update the skills for the organization %v.\n", id)
+		fmt.Println(err)
+		return nil
+	}
+
+	return nil
+}
+
+/*
+ * Used to update the description an organization
+ */
+func (client Client) SetDescForOrg(id string, description string) error {
+	updateStmt := `
+		UPDATE parentOrgs
+		SET description = $1
+		WHERE id = $2
+		RETURNING id;
+		`
+
+	_, err := client.Exec(
+		updateStmt,
+		description,
+		id,
+	)
+
+	if err != nil {
+		fmt.Printf("[ERROR] Can't update the description for the organization %v.\n", id)
 		fmt.Println(err)
 		return nil
 	}
@@ -183,7 +214,14 @@ func parseAsParentOrgSlice(rowsRs *sql.Rows) ([]database.ParentOrg, error) {
 	// Loop through the values of rows.
 	for rowsRs.Next() {
 		org := database.ParentOrg{}
-		err := rowsRs.Scan(&org.ID, &org.Name, &org.Logo, pq.Array(&org.Skills))
+		err := rowsRs.Scan(
+			&org.ID,
+			&org.Name,
+			&org.Logo,
+			&org.Description,
+			pq.Array(&org.Skills),
+		)
+
 		if err != nil {
 			fmt.Println("[ERROR] Can't save to ParentOrg struct")
 			return nil, err

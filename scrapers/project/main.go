@@ -4,6 +4,7 @@ import (
 	"eshaanagg/lfx/database/handlers"
 	"fmt"
 	"strings"
+	"sync"
 )
 
 func Parse() {
@@ -90,4 +91,40 @@ func LowercaseSkillsForProjects() {
 			}
 		}
 	}
+}
+
+// Adds the description to organizations with the help of OpenAI
+func UpdateOrganizationDescriptions() {
+	client := handlers.New()
+	defer client.Close()
+
+	var wg sync.WaitGroup
+
+	orgs := client.GetAllParentOrgs()
+
+	for _, org := range orgs {
+		wg.Add(1)
+
+		// Create a IIFC to populate the data for the organization
+		go func(orgID string, orgName string) {
+			defer wg.Done()
+
+			desc, err := getAIDescription(orgName)
+			if err != nil {
+				fmt.Println("[ERROR] There was an error in getting the description.")
+				fmt.Println(err)
+			}
+
+			client := handlers.New()
+			defer client.Close()
+
+			err = client.SetDescForOrg(orgID, desc)
+			if err != nil {
+				fmt.Println("[ERROR] There was an error in saving the description to database.")
+				fmt.Println(err)
+			}
+		}(org.ID, org.Name)
+	}
+
+	wg.Wait()
 }
