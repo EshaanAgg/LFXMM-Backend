@@ -3,6 +3,7 @@ package project
 import (
 	"eshaanagg/lfx/database/handlers"
 	"fmt"
+	"strings"
 )
 
 func Parse() {
@@ -26,6 +27,8 @@ func Parse() {
 	}
 }
 
+// Sets the skill attribute for all the oraganizations
+// The skills are converted to `lowercase` explicitly to as to ensure uniformity
 func UpdateSkillsForOrgs() {
 	client := handlers.New()
 	defer client.Close()
@@ -37,7 +40,7 @@ func UpdateSkillsForOrgs() {
 
 		for _, project := range projects {
 			for _, skill := range project.Skills {
-				frequencyMap[skill]++
+				frequencyMap[strings.ToLower(skill)]++
 			}
 		}
 
@@ -56,6 +59,35 @@ func UpdateSkillsForOrgs() {
 		if err != nil {
 			fmt.Println("[ERROR] There was an error in updating the skills for the parent organization.")
 			fmt.Println(err)
+		}
+	}
+}
+
+// Converts the skills of all the projects to `lowercase` explicitly to as to ensure uniformity
+func LowercaseSkillsForProjects() {
+	client := handlers.New()
+	defer client.Close()
+
+	orgs := client.GetAllParentOrgs()
+	for _, org := range orgs {
+		projects := client.GetProjectsByOrganization(org.ID)
+
+		for _, project := range projects {
+
+			skills := make([]string, 0)
+			for _, skill := range project.Skills {
+				skills = append(skills, strings.ToLower(skill))
+			}
+
+			if len(skills) == 0 {
+				continue
+			}
+
+			err := client.SetSkillsForProject(project.ID, skills)
+			if err != nil {
+				fmt.Println("[ERROR] There was an error in updating the skills for the parent organization.")
+				fmt.Println(err)
+			}
 		}
 	}
 }

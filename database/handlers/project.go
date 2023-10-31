@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"eshaanagg/lfx/database"
 	"fmt"
+	"strings"
 
 	"github.com/lib/pq"
 )
@@ -246,6 +247,46 @@ func (client Client) GetCountOfProjectsByParentOrgID(id string) []database.Proje
 	}
 
 	return counts
+}
+
+/*
+ * Used to update the skills list for a project
+ */
+func (client Client) SetSkillsForProject(id string, skillsArg []string) error {
+	params := make([]string, 0, len(skillsArg))
+	for i := range skillsArg {
+		params = append(params, fmt.Sprintf("$%v", i+1))
+	}
+
+	updateStmt := fmt.Sprintf(`
+	UPDATE projects
+	SET skills = ARRAY[%s]
+	WHERE id = $%v
+	RETURNING id;
+	`,
+		strings.Join(params, ", "),
+		len(params)+1,
+	)
+
+	// Convert the slice from []string to []any explicitly
+	skills := make([]any, 0)
+	for _, skill := range skillsArg {
+		skills = append(skills, skill)
+	}
+	skills = append(skills, id)
+
+	_, err := client.Exec(
+		updateStmt,
+		skills...,
+	)
+
+	if err != nil {
+		fmt.Printf("[ERROR] Can't update the skills for project %v.\n", id)
+		fmt.Println(err)
+		return nil
+	}
+
+	return nil
 }
 
 // Helper function to convert the resultset of a SELECT * query to a slice of ProjectThumbail struct array.

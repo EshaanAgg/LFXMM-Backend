@@ -167,7 +167,7 @@ func (client Client) SetSkillsForOrg(id string, skills []interface{}) error {
 	)
 
 	if err != nil {
-		fmt.Println("[ERROR] Can't add new project.")
+		fmt.Printf("[ERROR] Can't ppdate the skills for the organization %v.\n", id)
 		fmt.Println(err)
 		return nil
 	}
