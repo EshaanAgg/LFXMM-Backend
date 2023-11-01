@@ -1178,6 +1178,11 @@ SELECT pg_catalog.setval('public.parentorgs_id_seq', 186, true);
 
 SELECT pg_catalog.setval('public.projects_id_seq', 626, true);
 
+--
+-- Name: uniqueskills_id_seq; Type: SEQUENCE SET; Schema: public; Owner: admin
+--
+
+SELECT pg_catalog.setval('public.uniqueskills_id_seq', 276, true);
 
 --
 -- Name: parentorgs parentorgs_name_key; Type: CONSTRAINT; Schema: public; Owner: admin
@@ -1217,6 +1222,21 @@ ALTER TABLE ONLY public.projects
 
 ALTER TABLE ONLY public.projects
     ADD CONSTRAINT projects_pkey PRIMARY KEY (id);
+
+--
+-- Name: uniqueskills uniqueskills_pkey; Type: CONSTRAINT; Schema: public; Owner: admin
+--
+
+ALTER TABLE ONLY public.uniqueskills
+    ADD CONSTRAINT uniqueskills_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: uniqueskills uniqueskills_skill_key; Type: CONSTRAINT; Schema: public; Owner: admin
+--
+
+ALTER TABLE ONLY public.uniqueskills
+    ADD CONSTRAINT uniqueskills_skill_key UNIQUE (skill);
 
 
 --
