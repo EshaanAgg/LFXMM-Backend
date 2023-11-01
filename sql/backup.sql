@@ -68,6 +68,48 @@ CREATE TABLE public.projects (
     organizationid integer NOT NULL
 );
 
+--
+-- Name: uniqueskills; Type: TABLE; Schema: public; Owner: admin
+--
+
+CREATE TABLE public.uniqueskills (
+    id integer NOT NULL,
+    skill character varying NOT NULL,
+    frequency integer NOT NULL
+);
+
+
+ALTER TABLE public.uniqueskills OWNER TO admin;
+
+--
+-- Name: uniqueskills_id_seq; Type: SEQUENCE; Schema: public; Owner: admin
+--
+
+CREATE SEQUENCE public.uniqueskills_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.uniqueskills_id_seq OWNER TO admin;
+
+--
+-- Name: uniqueskills_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: admin
+--
+
+ALTER SEQUENCE public.uniqueskills_id_seq OWNED BY public.uniqueskills.id;
+
+
+--
+-- Name: uniqueskills id; Type: DEFAULT; Schema: public; Owner: admin
+--
+
+ALTER TABLE ONLY public.uniqueskills ALTER COLUMN id SET DEFAULT nextval('public.uniqueskills_id_seq'::regclass);
+
+
 
 ALTER TABLE public.projects OWNER TO admin;
 
@@ -83,7 +125,6 @@ ALTER TABLE public.projects ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
     NO MAXVALUE
     CACHE 1
 );
-
 
 --
 -- Data for Name: parentorgs; Type: TABLE DATA; Schema: public; Owner: admin
