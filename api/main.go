@@ -23,6 +23,7 @@ func Start() {
 	router.GET("/api/orgs/:id/projects/:projectId", getProject)
 	router.GET("/api/orgs/:id/count", getProjectCount)
 	router.GET("/api/orgs/:id/projects", getProjectsByYear)
+	router.GET("/api/allSkills", getAllSkills)
 
 	err := router.Run("0.0.0.0:8080")
 	if err != nil {

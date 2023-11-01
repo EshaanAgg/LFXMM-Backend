@@ -128,3 +128,29 @@ func UpdateOrganizationDescriptions() {
 
 	wg.Wait()
 }
+
+func UpdateUniqueSkillsTable() {
+	client := handlers.New()
+	defer client.Close()
+
+	frequencyMap := make(map[string]int)
+
+	orgs := client.GetAllParentOrgs()
+	for _, org := range orgs {
+		projects := client.GetProjectsByOrganization(org.ID)
+
+		for _, project := range projects {
+			for _, skill := range project.Skills {
+				frequencyMap[skill]++
+			}
+		}
+	}
+
+	//Save unique skills to the database
+	addedSkill := client.SaveUniqueSkillsMaptoDb(frequencyMap)
+	if addedSkill != nil {
+		fmt.Println("[ERROR] Can't save this skills map to database.")
+	} else {
+		fmt.Println("[SUCCESS] Skills Map added.")
+	}
+}

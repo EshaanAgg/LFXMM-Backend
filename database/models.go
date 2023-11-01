@@ -21,3 +21,8 @@ type Project struct {
 	OrganizationID string
 	Website        string
 }
+
+type UniqueSkills struct {
+	Skill     string `json:"skillName"`
+	Frequency int    `json:"frequency"`
+}
