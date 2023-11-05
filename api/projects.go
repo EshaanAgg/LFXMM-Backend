@@ -45,6 +45,46 @@ func getProject(c *gin.Context) {
 	})
 }
 
+func getProject1(c *gin.Context) {
+	client := handlers.New()
+	defer client.Close()
+
+	projectID := c.Param("projectId")
+	//	orgID := c.Param("id")
+
+	project, err := client.GetProjectById(projectID)
+	if err != nil {
+		c.IndentedJSON(http.StatusNotFound, gin.H{
+			"message": "No project was found with the provided ID.",
+		})
+		return
+	}
+
+	{ /*	org := client.GetOrganizationByID(orgID)
+			if org == nil {
+				c.IndentedJSON(http.StatusNotFound, gin.H{
+					"message": "There is no organization with this ID.",
+				})
+				return
+			} */
+	}
+
+	// Using GetProjectById to get the project by project ID
+
+	// Check if the organization ID associated with the project matches the supplied orgId
+	{ /* if project.OrganizationID != orgID {
+			c.IndentedJSON(http.StatusForbidden, gin.H{
+				"message": "This project does not belong to the specified organization.",
+			})
+			return
+		}
+		*/
+	}
+	c.IndentedJSON(http.StatusOK, gin.H{
+		"project": project,
+	})
+}
+
 func getProjectsByYear(c *gin.Context) {
 	client := handlers.New()
 	defer client.Close()

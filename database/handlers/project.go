@@ -289,6 +289,45 @@ func (client Client) SetSkillsForProject(id string, skillsArg []string) error {
 	return nil
 }
 
+func (client Client) GetProjectDesc() []database.ProjectDescription {
+
+	rowsRs, err := client.Query(`SELECT id, lfxprojectid, industry, description, repository, skills, amountraised FROM projects`)
+
+	if err != nil {
+		fmt.Println("[ERROR] GetProjectDesc query failed")
+		fmt.Println(err)
+		return make([]database.ProjectDescription, 0)
+	}
+	defer rowsRs.Close()
+
+	projs, err := parseAsProjectDescSlice(rowsRs)
+	if err != nil {
+		fmt.Println("[ERROR] Can't convert to result set in GetPerojectDesc function.")
+		fmt.Println(err)
+		return make([]database.ProjectDescription, 0)
+	}
+
+	return projs
+}
+
+func parseAsProjectDescSlice(rowsRs *sql.Rows) ([]database.ProjectDescription, error) {
+	// Create a placeholder.
+	projdesc := make([]database.ProjectDescription, 0)
+
+	// Loop through the values of rows.
+	for rowsRs.Next() {
+		desc := database.ProjectDescription{}
+		err := rowsRs.Scan(&desc.ProjectID, &desc.LFXId, &desc.Industry, &desc.Description, &desc.Repository, pq.Array(&desc.Skills), &desc.AmountRaised)
+		if err != nil {
+			fmt.Println("[ERROR] Can't save to ProjectDescription struct")
+			return nil, err
+		}
+		projdesc = append(projdesc, desc)
+	}
+
+	return projdesc, nil
+}
+
 // Helper function to convert the resultset of a SELECT * query to a slice of ProjectThumbail struct array.
 func parseAsProjectThumbnailSlice(rowsRs *sql.Rows) ([]database.ProjectThumbnail, error) {
 	projects := make([]database.ProjectThumbnail, 0)

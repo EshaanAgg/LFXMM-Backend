@@ -29,3 +29,14 @@ type ProjectCountByYear struct {
 	ProgramYear int `json:"programYear"`
 	Count       int `json:"count"`
 }
+
+type ProjectDescription struct {
+	ProjectID    string   `json:"projectId"`
+	LFXId        string   `json:"lfid"`
+	Status       string   `json:"status"`
+	Industry     string   `json:"industry"`
+	Description  string   `json:"description"`
+	Repository   string   `json:"repolink"`
+	Skills       []string `json:"skills"`
+	AmountRaised float64  `json:"amountRaised"`
+}
