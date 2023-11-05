@@ -19,6 +19,7 @@ func Start() {
 	// Register all the routes and there corresponding handlers
 	router.GET("/api/orgs", getAllOrgs)
 	router.GET("/api/orgs/:id", getOrg)
+	router.GET("/api/projects", getProjectsByFilter)
 	router.GET("/api/projects/:projectId", getProject1)
 	router.GET("/api/orgs/:id/projects/:projectId", getProject)
 	router.GET("/api/orgs/:id/count", getProjectCount)
